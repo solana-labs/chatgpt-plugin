@@ -3,16 +3,13 @@ A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://s
 
 ## Endpoints
 
-ChatGPT can POST to the following resources with the same request payload, e.g.
-```json
-{
-  "address": "8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625"
-}
-```
+ChatGPT can POST to the following resources, as described by `.well-known/openapi.yaml`.
+
 
 ### /getAccountInfo
 
 Returns the output of `getAccountInfo` method from the RPC with buffer data, and if it can be deserialized by its program IDL, then the response payload has additional field called `extended` that has a JSON serialized string of the anchor data. Chat GPT's plugin model seems to be able to read this pretty well.
+
 ```json
 {
   ...,
@@ -25,10 +22,9 @@ Returns the output of `getAccountInfo` method from the RPC with buffer data, and
 Returns
 ```json
 {
-  "lamports": 42690
+  "sol": 0.40296
 }
 ```
-
 
 ### /getAssetsByOwner
 
