@@ -100,12 +100,40 @@ Returns LLM friendly response of available NFTs:
 ```
 </details>
 
+### Endpoints for Sending Transactions
+
 <details>
-<summary> /createBuyTransaction </summary>
+<summary> /createBuyTransaction { token, price }</summary>
 
 Right now we are trusting Hyperspace to craft a valid transaction for us. 
 In the future we will setup a write interface for programs on Solana to adhere to in order to 
 be a target of LLM transaction composition.
+
+Returns
+```json
+{
+  "linkToSign": "<url-to-sign-transaction>" 
+}
+```
+</details>
+
+<details>
+<summary> /createTransferSol { destination, amount }</summary>
+
+Creates a transaction to transfer an amount in Sol.
+
+Returns
+```json
+{
+  "linkToSign": "<url-to-sign-transaction>" 
+}
+```
+</details>
+
+<details>
+<summary> /createTransferToken { destination, mint, amount }</summary>
+
+Creates a transaction to transfer an amount of token (from the mint).
 
 Returns
 ```json
