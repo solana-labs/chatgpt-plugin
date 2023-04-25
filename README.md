@@ -165,24 +165,24 @@ the transaction before signing. However for now, these are simply redirect links
 to ensure that SolanaPay QR codes show up in the ChatGPT link previews.
 
 <details>
-<summary>/page/createBuyNFT</summary>
+<summary>/page/:methodName</summary>
 
 Returns a webpage with [OpenGraph](https://ogp.me/) metadata that will be rendered in the ChatGPT 
 rich link preview. All ChatGPT links should be proxied through this sort of pipeline to maximize
-user engagement of links. The `og:image` tag is to `/qr/createBuyNFT` to show a SolanaPay QR code in link previews.
+user engagement of links. The `og:image` tag is to `/qr/:methodName` to show a SolanaPay QR code in link previews.
 
 This is currently a blank page, but we may show a preview of the transaction in the future.
 </details>
 
 <details>
-<summary>/qr/createBuyNFT</summary>
+<summary>/qr/:methodName</summary>
 
 Returns a PNG QR code that has been optimized to show in the particular aspect ratio of ChatGPT plugins. 
-This just encodes a SolanaPay link that redirects to `/sign/createBuyNFT`. 
+This just encodes a SolanaPay link that redirects to `/sign/:methodName`. 
 </details>
 
 <details>
-<summary>/sign/createBuyNFT</summary>
+<summary>/sign/:methodName</summary>
 
 This is the final redirect link that actually returns transaction bytes in a SolanaPay compatible format
 so users can sign transactions that are recommended by ChatGPT.
