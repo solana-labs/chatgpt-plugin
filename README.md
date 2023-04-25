@@ -1,12 +1,6 @@
 # Solana ChatGPT Plugin
 A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://solana-gpt-plugin.onrender.com`.
 
-<div>
-<img width="350" alt="Transfer Sol in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234369147-7ba7d9e1-4f9e-43bd-b539-2b1018abc573.png">
-<img width="350" alt="Search NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/231182274-40b42f0e-5e5d-4050-9e31-2f75375481c1.png">
-<img width="350" alt="Buy NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/232155500-fa6352c9-d63d-468f-965f-6aa110930ec5.png">
-</div>
-
 ## Endpoints
 
 ChatGPT can POST to the following resources with the same request payload, e.g.
@@ -34,6 +28,7 @@ Returns
   "lamports": 42690
 }
 ```
+
 
 ### /getAssetsByOwner
 
