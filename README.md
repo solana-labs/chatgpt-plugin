@@ -73,7 +73,7 @@ Returns the transaction signatures returned in `getSignaturesForAddress` method 
 
 
 ### Endpoints for NFT discovery 
-These endpoints are under development and subject to rapid change
+These endpoints are under development and subject to rapid change. These currently use the [Hyperspace API](https://docs.hyperspace.xyz).
 
 <details>
 <summary>/getCollectionsByFloorPrice { maxFloorPrice, minFloorPrice, orderBy, pageSize } </summary>
