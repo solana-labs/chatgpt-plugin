@@ -14,7 +14,7 @@ export async function getTokenAccounts(req: Request, res: Response) {
     { programId: TOKEN_PROGRAM_ID },
     "confirmed"
   );
-  const tokenInfos: Omit<TokenInfo, "usdValue">[] = [];
+  const tokenInfos: TokenInfo[] = [];
   for (const accountInfo of result.value) {
     const info = accountInfo.account.data.parsed.info;
     if (info.tokenAmount.uiAmount !== 0) {
