@@ -1,6 +1,12 @@
 # Solana ChatGPT Plugin
 A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://solana-gpt-plugin.onrender.com`.
 
+<div>
+<img width="350" alt="Transfer Sol in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383403-f92b8aa1-bb11-47d8-89d9-3369192dfdf1.png">
+<img width="350" alt="Search NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/231182274-40b42f0e-5e5d-4050-9e31-2f75375481c1.png">
+<img width="350" alt="Buy NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383690-464172de-a49b-40d1-9bff-74570cbd4e89.png">
+</div>
+
 ## Endpoints
 
 ChatGPT can POST to the following resources, as described by `.well-known/openapi.yaml`.
@@ -150,3 +156,11 @@ so users can sign transactions that are recommended by ChatGPT.
 To install dependencies, just execute `yarn`. This project uses `node` with version `>=16.17.0`.
 
 To start a development server, execute `yarn dev`. This will start the plugin available from `localhost:3333` with its own configuration settings in `.well-known-dev/`.
+
+# License
+
+This codebase is released under Apache License 2.0.
+
+# Disclaimer
+
+By accessing or using this codebase or any of its components, you accept and agree with the [Disclaimer](DISCLAIMER.md).
