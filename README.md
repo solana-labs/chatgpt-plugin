@@ -3,8 +3,8 @@ A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://s
 
 <div>
 <img width="350" alt="Transfer Sol in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383403-f92b8aa1-bb11-47d8-89d9-3369192dfdf1.png">
-<img width="350" alt="Search NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/231182274-40b42f0e-5e5d-4050-9e31-2f75375481c1.png">
 <img width="350" alt="Buy NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383690-464172de-a49b-40d1-9bff-74570cbd4e89.png">
+<img width="350" alt="Search NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/231182274-40b42f0e-5e5d-4050-9e31-2f75375481c1.png">
 </div>
 
 ## Endpoints
