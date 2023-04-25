@@ -159,7 +159,7 @@ To start a development server, execute `yarn dev`. This will start the plugin av
 
 # License
 
-This codebase is released under Apache License 2.0.
+This codebase is released under [Apache License 2.0](LICENSE.md).
 
 # Disclaimer
 
