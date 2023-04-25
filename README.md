@@ -39,13 +39,13 @@ Returns
 </details>
 
 <details>
-<summary>/getAssetsByOwner</summary>
+<summary>/getAssetsByOwner { address }</summary>
 
 Returns the assets returned by the [Metaplex Read API spec](https://github.com/metaplex-foundation/api-specifications/blob/main/specifications/read_api/openrpc_spec.json)
 </details>
 
 <details>
-<summary>/getTransaction</summary>
+<summary>/getTransaction { signature } </summary>
 
 Accepts
 ```json
@@ -61,7 +61,7 @@ Returns the transaction status metadata for the `getTransaction` method from the
 These endpoints are under development and subject to rapid change
 
 <details>
-<summary>/getCollectionsByFloorPrice</summary>
+<summary>/getCollectionsByFloorPrice { maxFloorPrice, minFloorPrice, orderBy, pageSize } </summary>
 
 Returns
 ```json
@@ -82,7 +82,7 @@ Returns
 </details>
 
 <details>
-<summary>/getListedCollectionNFTs</summary>
+<summary>/getListedCollectionNFTs { projectId, pageSize, priceOrder }</summary>
 
 Returns LLM friendly response of available NFTs:
 ```json
