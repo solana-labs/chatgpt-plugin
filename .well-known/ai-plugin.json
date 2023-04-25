@@ -1,0 +1,18 @@
+{
+    "schema_version": "v1",
+    "name_for_model": "solana",
+    "name_for_human": "Solana RPC Plugin",
+    "description_for_model": "Plugin for querying the Solana blockchain to find answers to questions and retrieve relevant information. Use it whenever a user asks something that might be related to their Solana account.",
+    "description_for_human": "Read Solana Data.",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+      "type": "openapi",
+      "url": "http://localhost:3333/.well-known/openapi.yaml",
+      "has_user_authentication": false
+    },
+    "logo_url": "https://localhost:3333/.well-known/logo.png",
+    "contact_email": "noah.gundotra@solana.com", 
+    "legal_info_url": "http://example.com/legal-info"
+}

@@ -1,0 +1,468 @@
+openapi: 3.0.2
+info:
+  title: Retrieval Plugin API
+  description: A retrieval API for querying and filtering documents based on natural language queries and metadata
+  version: 1.0.0
+  servers:
+    - url: https://your-app-url.com
+paths:
+  /getAssetsByOwner:
+    post:
+      summary: getAssetsByOwner
+      description: Accepts Solana publicKey address. Returns Metaplex NFTs owned by the address
+      operationId: query_account_info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/getAccountInfoRequest"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getAssetsByOwnerResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
+  /getAccountInfo:
+    post:
+      summary: getAccountInfo
+      description: Accepts Solana publicKey address. Returns information the account data
+      operationId: query_account_info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/getAccountInfoRequest"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getAccountInfoResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
+  /getBalance:
+    post:
+      summary: getBalance
+      description: Accepts Solana publicKey address. Returns the amount of lamports that the account has available.
+      operationId: query_balance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/getBalanceRequest"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getBalanceResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
+components:
+  schemas:
+    getAccountInfoRequest:
+      title: GetAccountInfoRequest
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          title: Address
+          type: string
+    getAccountInfoResponse:
+      title: GetAccountInfoResponse
+      type: Object
+      properties:
+        message:
+          title: Message
+          type: object
+          properties:
+            data:
+              title: Data
+              type: object
+              properties:
+                type:
+                  title: Type
+                  type: string
+                data:
+                  title: Data
+                  type: array
+                  items: { type: string }
+            executable:
+              title: Executable
+              type: boolean
+            lamports:
+              title: Lamports
+              type: number
+            owner:
+              title: Owner
+              type: string
+            rentEpoch:
+              title: Owner
+              type: number
+            extended:
+              title: Extended
+              type: string
+    getBalanceRequest:
+      title: GetBalanceRequest
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          title: Address
+          type: string
+    getBalanceResponse:
+      title: GetBalanceResponse
+      type: object
+      properties:
+        lamports:
+          title: Lamports
+          type: string
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        message:
+          title: Message
+          type: string
+        # detail:
+        #   title: Detail
+        #   type: array
+        #   items:
+        #     $ref: "#/components/schemas/ValidationError"
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    getAssetsByOwnerResponse:
+      title: GetAssetsByOwnerResponse
+      type: object
+      properties:
+        total:
+          title: Total
+          type: number
+        limit:
+          title: Limit
+          type: number
+        page:
+          title: Page
+          type: number
+        items:
+          title: Items
+          type: array
+          items: { $ref: "#/components/schema/Asset" }
+    Asset:
+      title: Asset
+      type: object
+      required:
+        - version
+        - id
+      properties:
+        interface:
+          type: string
+          enum:
+            - V1_NFT
+            - V1_PRINT
+            - LEGACY_NFT
+            - V2_NFT
+            - FungibleAsset
+            - Custom
+            - Identity
+            - Executable
+        id:
+          type: string
+        content:
+          type: object
+          properties:
+            $schema:
+              type: string
+            json_uri:
+              type: string
+            metadata:
+              type: object
+              properties:
+                description:
+                  type: string
+                name:
+                  type: string
+                symbol:
+                  type: string
+            files:
+              type: array
+              items:
+                type: object
+                properties:
+                  uri:
+                    type: string
+                  mime:
+                    type: string
+                  quality:
+                    type: object
+                    properties:
+                      $$schema:
+                        type: string
+        #         links:
+        #           type: array
+        #           items:
+        #             type: object
+        authorities:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              scopes:
+                type: array
+                items:
+                  type: string
+        compression:
+          type: object
+          properties:
+            eligible:
+              type: boolean
+            compressed:
+              type: boolean
+        grouping:
+          type: array
+          items:
+            type: object
+            required:
+              - $$schema
+            properties:
+              $$schema:
+                type: string
+              group_key:
+                type: string
+              group_value:
+                type: string
+        royalty:
+          type: object
+          properties:
+            royalty_model:
+              type: string
+              enum:
+                - creators
+                - fanout
+                - single
+            target:
+              type: string
+            percent:
+              type: number
+            locked:
+              type: boolean
+        creators:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              share:
+                type: string
+              verified:
+                type: boolean
+        ownership:
+          type: object
+          properties:
+            frozen:
+              type: boolean
+            delegated:
+              type: boolean
+            delegate:
+              type: string
+            ownership_model:
+              type: string
+              enum:
+                - Single
+                - Token
+            address:
+              type: string
+            version:
+              type: string
+  # AssetList:
+  #   type: array
+  #   items:
+  #     $ref: "#/components/schemas/Asset"
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+
+    # DocumentChunkMetadata:
+    #   title: DocumentChunkMetadata
+    #   type: object
+    #   properties:
+    #     source:
+    #       $ref: "#/components/schemas/Source"
+    #     source_id:
+    #       title: Source Id
+    #       type: string
+    #     url:
+    #       title: Url
+    #       type: string
+    #     created_at:
+    #       title: Created At
+    #       type: string
+    #     author:
+    #       title: Author
+    #       type: string
+    #     document_id:
+    #       title: Document Id
+    #       type: string
+    # DocumentChunkWithScore:
+    #   title: DocumentChunkWithScore
+    #   required:
+    #     - text
+    #     - metadata
+    #     - score
+    #   type: object
+    #   properties:
+    #     id:
+    #       title: Id
+    #       type: string
+    #     text:
+    #       title: Text
+    #       type: string
+    #     metadata:
+    #       $ref: "#/components/schemas/DocumentChunkMetadata"
+    #     embedding:
+    #       title: Embedding
+    #       type: array
+    #       items:
+    #         type: number
+    #     score:
+    #       title: Score
+    #       type: number
+    # DocumentMetadataFilter:
+    #   title: DocumentMetadataFilter
+    #   type: object
+    #   properties:
+    #     document_id:
+    #       title: Document Id
+    #       type: string
+    #     source:
+    #       $ref: "#/components/schemas/Source"
+    #     source_id:
+    #       title: Source Id
+    #       type: string
+    #     author:
+    #       title: Author
+    #       type: string
+    #     start_date:
+    #       title: Start Date
+    #       type: string
+    #     end_date:
+    #       title: End Date
+    #       type: string
+    # Query:
+    #   title: Query
+    #   required:
+    #     - query
+    #   type: object
+    #   properties:
+    #     query:
+    #       title: Query
+    #       type: string
+    #     filter:
+    #       $ref: "#/components/schemas/DocumentMetadataFilter"
+    #     top_k:
+    #       title: Top K
+    #       type: integer
+    #       default: 3
+
+    # properties:
+    #   queries:
+    #     title: Queries
+    #     type: array
+    #     items:
+    #       $ref: "#/components/schemas/Query"
+    # GetAccountInfoRequest:
+    #   title: GetAccountInfoRequest
+    #   required:
+    #     - queries
+    #   type: object
+    #   properties:
+    #     queries:
+    #       title: Queries
+    #       type: array
+    #       items:
+    #         $ref: "#/components/schemas/Query"
+    # QueryResponse:
+    #   title: QueryResponse
+    #   required:
+    #     - results
+    #   type: object
+    #   properties:
+    #     results:
+    #       title: Results
+    #       type: array
+    #       items:
+    #         $ref: "#/components/schemas/QueryResult"
+    # QueryResult:
+    #   title: QueryResult
+    #   required:
+    #     - query
+    #     - results
+    #   type: object
+    #   properties:
+    #     query:
+    #       title: Query
+    #       type: string
+    #     results:
+    #       title: Results
+    #       type: array
+    #       items:
+    #         $ref: "#/components/schemas/DocumentChunkWithScore"
+    # Source:
+    #   title: Source
+    #   enum:
+    #     - email
+    #     - file
+    #     - chat
+    #   type: string
+    #   description: An enumeration.
