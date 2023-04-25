@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "solana-gpt-plugin"
+version = "0.1.0"
+description = ""
+authors = ["ngundotra <noah@gundotra.org>"]
+license = "Apache-2.0"
+readme = "README.md"
+packages = [{include = "solana_gpt_plugin"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+langchain = "^0.0.136"
+requests = "^2.28.2"
+openai = "^0.27.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

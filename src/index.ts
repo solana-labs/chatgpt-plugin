@@ -1,134 +1,108 @@
-import express from "express";
-import axios from "axios";
+import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+
+import * as dotenv from "dotenv";
+dotenv.config();
+
+import { getTransaction } from "./handlers/getTransaction";
+
+import configConstants, { APP, PORT, TX_DESCRIPTIONS } from "./constants";
+configConstants();
+
+import { getSignaturesForAddress } from "./handlers/getSignaturesForAddress";
+import { getAccountInfo } from "./handlers/getAccountInfo";
+import { getBalance } from "./handlers/getBalance";
+import { getAssetsByOwner } from "./handlers/getAssetsByOwner";
+import { getListedCollectionNFTs } from "./handlers/getListedCollectionNFTs";
+import { getCollectionsByFloorPrice } from "./handlers/getCollectionsByFloorPrice";
+import { makeRedirectToLinkPreview } from "./handlers/solana-pay/redirectToLinkPreview";
+import { makeQrcodeLinkPreview } from "./handlers/solana-pay/qrcodeLinkPreview";
+import { makeCreateQrCode } from "./handlers/solana-pay/createQrCode";
 import {
-  AnchorProvider,
-  BN,
-  BorshAccountsCoder,
-  Program,
-} from "@coral-xyz/anchor";
-import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
+  respondToSolanaPayGet,
+  makeRespondToSolanaPayPost,
+} from "./handlers/solana-pay/tx-request-server";
+import { getTokenAccounts } from "./handlers/getTokenAccounts";
 
-const app = express();
-const port = process.env.PORT || 3333;
-
-const solanaRPCUrl = "https://api.mainnet-beta.solana.com";
-const connection = new Connection(solanaRPCUrl);
-
-app.use(bodyParser.json());
-app.use(
+APP.use(bodyParser.json());
+APP.use(
   cors({
     origin: "*",
   })
 );
-app.use("/.well-known", express.static("./.well-known"));
 
-function replaceBNWithToString(obj: any): any {
-  if (obj instanceof BN) {
-    return obj.toString();
-  } else if (obj instanceof PublicKey) {
-    return obj.toString();
-  }
-
-  if (typeof obj === "object" && obj !== null) {
-    return Object.keys(obj).reduce((acc: Record<string, any>, key: string) => {
-      acc[key] = replaceBNWithToString(obj[key]);
-      return acc;
-    }, {});
-  }
-
-  return obj;
+if (process.env.DEV === "true") {
+  APP.use("/.well-known", express.static("./.well-known-dev"));
+} else {
+  APP.use("/.well-known", express.static("./.well-known"));
 }
 
-console.log(process.env.HELIUS_API_KEY);
-const HELIUS_URL = `https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}}`;
+function errorHandle(
+  handler: (
+    req: Request,
+    res: Response<any, Record<string, any>>
+  ) => Promise<void>
+) {
+  return (req: Request, res: Response<any, Record<string, any>>) => {
+    handler(req, res).catch((error) => {
+      console.error(error);
 
-const getAssetsByOwner = async (
-  address: string,
-  page: number = 1,
-  limit: number = 5
-) => {
-  const sortBy = {
-    sortBy: "created",
-    sortDirection: "asc",
+      // Prevent ChatGPT from getting access to error messages until we have better error handling
+      res.status(500).send({ message: "An error occurred" });
+    });
   };
-  const before = "";
-  const after = "";
-  const { data } = await axios.post(HELIUS_URL, {
-    jsonrpc: "2.0",
-    id: "my-id",
-    method: "getAssetsByOwner",
-    params: [address, sortBy, limit, page, before, after],
-  });
-  return data.result;
-};
+}
 
-app.post("/:methodName", async (req, res) => {
-  console.log(req.params.methodName, req.body);
-  try {
-    if (req.params.methodName === "getAssetsByOwner") {
-      const accountAddress = new PublicKey(req.body.address);
-      const assets = await getAssetsByOwner(accountAddress.toString());
-      res.status(200).send({ message: JSON.stringify(assets) });
-    }
-    if (req.params.methodName === "getAccountInfo") {
-      const accountAddress = new PublicKey(req.body.address);
-      const accountInfo = await connection.getAccountInfo(accountAddress);
-      if (accountInfo?.owner && !accountInfo.executable) {
-        try {
-          const program = await Program.at(
-            accountInfo.owner,
-            new AnchorProvider(connection, new NodeWallet(Keypair.generate()), {
-              commitment: "confirmed",
-            })
-          );
+// Solana RPC
+APP.post("/getBalance", errorHandle(getBalance));
+APP.post("/getAccountInfo", errorHandle(getAccountInfo));
+APP.post("/getTransaction", errorHandle(getTransaction));
+APP.post("/getTokenAccounts", errorHandle(getTokenAccounts));
+APP.post("/getSignaturesForAddress", errorHandle(getSignaturesForAddress));
 
-          const rawData = accountInfo.data;
-          const coder = new BorshAccountsCoder(program.idl);
-          const accountDefTmp = program.idl.accounts?.find((accountType: any) =>
-            (rawData as Buffer)
-              .slice(0, 8)
-              .equals(BorshAccountsCoder.accountDiscriminator(accountType.name))
-          );
-          if (accountDefTmp) {
-            const accountDef = accountDefTmp;
-            try {
-              const decodedAccountData = replaceBNWithToString(
-                coder.decode(accountDef.name, rawData)
-              );
-              console.log(decodedAccountData);
+// Metaplex ReadAPI (using Helius)
+APP.post("/getAssetsByOwner", errorHandle(getAssetsByOwner));
 
-              let payload = {
-                ...accountInfo,
-                extended: JSON.stringify(decodedAccountData),
-              };
-              res.status(200).send({ message: JSON.stringify(payload) });
-              return;
-            } catch (err) {
-              console.log(err);
-              res.status(500).send({ message: "An error occurred" });
-              return;
-            }
-          }
-        } catch (err) {
-          res.status(200).send({ message: JSON.stringify(accountInfo) });
-        }
-      } else {
-        res.status(200).send({ message: JSON.stringify(accountInfo) });
-      }
-    } else if (req.params.methodName === "getBalance") {
-      const { address } = req.body;
-      const balance = await connection.getBalance(new PublicKey(address));
-      return res.status(200).send({ lamports: JSON.stringify(balance) });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "An error occurred" });
-  }
-});
+// NFT Listings (using Hyperspace)
+APP.post("/getListedCollectionNFTs", errorHandle(getListedCollectionNFTs));
+APP.post(
+  "/getCollectionsByFloorPrice",
+  errorHandle(getCollectionsByFloorPrice)
+);
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+// Write API
+// -> Shows SolanaPay QR code in link previews
+for (const methodName of Object.keys(TX_DESCRIPTIONS)) {
+  // Create redirect to link preview
+  // This is the only ChatGPT accessible endpoint per tx
+  APP.post(
+    `/${methodName}`,
+    errorHandle(makeRedirectToLinkPreview(methodName))
+  );
+
+  // ==================================
+  //        INTERNAL ENDPOINTS
+  // ==================================
+
+  // Creates an OpenGraph HTML page with a link to a QR code
+  // so SolanaPay QR Codes can show up in ChatGPT's link previews
+  APP.get(
+    `/page/${methodName}`,
+    errorHandle(makeQrcodeLinkPreview(methodName))
+  );
+
+  // Create QR code image
+  APP.get(`/qr/${methodName}`, errorHandle(makeCreateQrCode(methodName)));
+
+  // SolanaPay Transaction Request server impl
+  APP.get(`/sign/${methodName}`, respondToSolanaPayGet);
+  APP.post(
+    `/sign/${methodName}`,
+    errorHandle(makeRespondToSolanaPayPost(methodName))
+  );
+}
+
+APP.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
