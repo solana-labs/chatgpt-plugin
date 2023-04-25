@@ -57,6 +57,21 @@ Accepts
 Returns the transaction status metadata for the `getTransaction` method from the Solana RPC.
 </details>
 
+<details>
+<summary>/getTokenAccounts { address }</summary>
+
+Returns the token accounts owned by a user with an amount > 0. Derived from the `getTokenAccountsByOwner` method on the Solana RPC.
+
+</details>
+
+<details>
+<summary>/getSignaturesForAddress { address } </summary>
+
+Returns the transaction signatures returned in `getSignaturesForAddress` method from the Solana RPC.
+
+</details>
+
+
 ### Endpoints for NFT discovery 
 These endpoints are under development and subject to rapid change
 
