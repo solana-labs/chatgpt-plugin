@@ -6,7 +6,10 @@ A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://s
 ChatGPT can POST to the following resources, as described by `.well-known/openapi.yaml`.
 
 
-### /getAccountInfo
+<details>
+<summary>
+/getAccountInfo { address }
+</summary>
 
 Returns the output of `getAccountInfo` method from the RPC with buffer data, and if it can be deserialized by its program IDL, then the response payload has additional field called `extended` that has a JSON serialized string of the anchor data. Chat GPT's plugin model seems to be able to read this pretty well.
 
@@ -16,8 +19,10 @@ Returns the output of `getAccountInfo` method from the RPC with buffer data, and
   "extended": "{\"authority\":\"8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625\",\"numMinted\":50}"
 }
 ```
+</details>
 
-### /getBalance
+<details>
+<summary>/getBalance { address }</summary>
 
 Returns
 ```json
@@ -25,12 +30,16 @@ Returns
   "sol": 0.40296
 }
 ```
+</details>
 
-### /getAssetsByOwner
+<details>
+<summary>/getAssetsByOwner</summary>
 
 Returns the assets returned by the [Metaplex Read API spec](https://github.com/metaplex-foundation/api-specifications/blob/main/specifications/read_api/openrpc_spec.json)
+</details>
 
-### /getTransaction
+<details>
+<summary>/getTransaction</summary>
 
 Accepts
 ```json
@@ -40,11 +49,13 @@ Accepts
 ```
 
 Returns the transaction status metadata for the `getTransaction` method from the Solana RPC.
+</details>
 
 ### Endpoints for NFT discovery 
 These endpoints are under development and subject to rapid change
 
-#### /getCollectionsByFloorPrice
+<details>
+<summary>/getCollectionsByFloorPrice</summary>
 
 Returns
 ```json
@@ -62,8 +73,10 @@ Returns
   "currentPage'": 1
 }
 ```
+</details>
 
-#### /getListedCollectionNFTs
+<details>
+<summary>/getListedCollectionNFTs</summary>
 
 Returns LLM friendly response of available NFTs:
 ```json
@@ -79,8 +92,10 @@ Returns LLM friendly response of available NFTs:
   "currentPage": 1
 } 
 ```
+</details>
 
-#### /createBuyTransaction
+<details>
+<summary> /createBuyTransaction </summary>
 
 Right now we are trusting Hyperspace to craft a valid transaction for us. 
 In the future we will setup a write interface for programs on Solana to adhere to in order to 
@@ -92,6 +107,7 @@ Returns
   "linkToSign": "<url-to-sign-transaction>" 
 }
 ```
+</details>
 
 ### Endpoints for Transaction Composition (not LLM accessible)
 
@@ -99,20 +115,25 @@ These are also subject to change, and we may create actual webpages to inspect
 the transaction before signing. However for now, these are simply redirect links 
 to ensure that SolanaPay QR codes show up in the ChatGPT link previews.
 
-#### /page/createBuyNFT
+<details>
+<summary>/page/createBuyNFT</summary>
 
 Returns a webpage with [OpenGraph](https://ogp.me/) metadata that will be rendered in the ChatGPT 
 rich link preview. All ChatGPT links should be proxied through this sort of pipeline to maximize
 user engagement of links. The `og:image` tag is to `/qr/createBuyNFT` to show a SolanaPay QR code in link previews.
 
 This is currently a blank page, but we may show a preview of the transaction in the future.
+</details>
 
-#### /qr/createBuyNFT
+<details>
+<summary>/qr/createBuyNFT</summary>
 
 Returns a PNG QR code that has been optimized to show in the particular aspect ratio of ChatGPT plugins. 
 This just encodes a SolanaPay link that redirects to `/sign/createBuyNFT`. 
+</details>
 
-#### /sign/createBuyNFT
+<details>
+<summary>/sign/createBuyNFT</summary>
 
 This is the final redirect link that actually returns transaction bytes in a SolanaPay compatible format
 so users can sign transactions that are recommended by ChatGPT.
@@ -122,6 +143,7 @@ so users can sign transactions that are recommended by ChatGPT.
   "transaction": "<base64-encoded-transaction-bytes>"
 }
 ```
+</details>
 
 ## Development
 
