@@ -27,6 +27,7 @@ Returns the output of `getAccountInfo` method from the RPC with buffer data, and
 ```
 </details>
 
+
 <details>
 <summary>/getBalance { address }</summary>
 
