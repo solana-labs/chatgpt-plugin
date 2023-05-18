@@ -24,6 +24,7 @@ import {
   makeRespondToSolanaPayPost,
 } from "./handlers/solana-pay/tx-request-server";
 import { getTokenAccounts } from "./handlers/getTokenAccounts";
+import { NextApiRequest, NextApiResponse } from "next";
 
 APP.use(bodyParser.json());
 APP.use(
@@ -33,9 +34,9 @@ APP.use(
 );
 
 if (process.env.DEV === "true") {
-  APP.use("/.well-known", express.static("./.well-known-dev"));
+  APP.use("/.well-known", express.static("../../../.well-known-dev"));
 } else {
-  APP.use("/.well-known", express.static("./.well-known"));
+  APP.use("/.well-known", express.static("../../../.well-known"));
 }
 
 function errorHandle(
@@ -106,3 +107,18 @@ for (const methodName of Object.keys(TX_DESCRIPTIONS)) {
 APP.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+export async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log("Hello");
+  if (req.method !== "GET") {
+    res.status(405).send({ message: "Only GET requests allowed" });
+    return;
+  }
+
+  // not needed in NextJS v12+
+
+  // the rest of your code
+  //   const body = JSON.parse(req.body);
+  // console.log(req, AIPlugin);
+  res.status(200).send({ hello: "world" });
+}
