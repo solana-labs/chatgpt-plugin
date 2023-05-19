@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey } from "@solana/web3.js";
-import { CONNECTION } from "../../constants";
+import configConstants, { CONNECTION } from "../../constants";
+configConstants();
 
-export async function getSignaturesForAddress(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const accountAddress = new PublicKey(req.body.address);
   const signatures = await CONNECTION.getSignaturesForAddress(accountAddress, {
     limit: 11,

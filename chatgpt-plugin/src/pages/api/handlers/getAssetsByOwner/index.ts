@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey } from "@solana/web3.js";
-import { HELIUS_URL } from "../../constants";
+import configConstants, { HELIUS_URL } from "../../constants";
+configConstants();
+
 import axios from "axios";
 
 /**
@@ -30,7 +32,11 @@ const _getAssetsByOwner = async (
   return data.result;
 };
 
-export async function getAssetsByOwner(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  console.log(HELIUS_URL, process.env.HELIUS_API_KEY);
   const accountAddress = new PublicKey(req.body.address);
   const assets = await _getAssetsByOwner(accountAddress.toString());
   res.status(200).send({ message: JSON.stringify(assets) });

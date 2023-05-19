@@ -1,14 +1,14 @@
-import { Request } from "express";
+import { NextApiRequest } from "next";
 import {
   PublicKey,
   Transaction,
   SystemProgram,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
-import { BN } from "@coral-xyz/anchor";
 import { CONNECTION } from "../../../constants";
+import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 
-export async function createTransferSol(req: Request) {
+async function createTransferSol(req: NextApiRequest) {
   const { destination, amount } = req.query;
   const { account: sender } = req.body;
 
@@ -29,3 +29,7 @@ export async function createTransferSol(req: Request) {
       .toString("base64"),
   };
 }
+
+export default makeRespondToSolanaPayGet(
+  makeRespondToSolanaPayPost(createTransferSol)
+);

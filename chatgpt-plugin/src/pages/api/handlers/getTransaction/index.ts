@@ -1,7 +1,11 @@
-import { Request, Response } from "express";
-import { CONNECTION } from "../../constants";
+import { NextApiRequest, NextApiResponse } from "next";
+import configConstants, { CONNECTION } from "../../constants";
+configConstants();
 
-export async function getTransaction(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const signature = req.body.signature;
   const transaction = await CONNECTION.getTransaction(signature, {
     maxSupportedTransactionVersion: 2,

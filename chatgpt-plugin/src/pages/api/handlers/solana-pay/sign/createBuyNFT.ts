@@ -1,8 +1,9 @@
-import { Request } from "express";
+import { NextApiRequest } from "next";
 
 import { base64 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 import { HYPERSPACE_CLIENT } from "../../../constants";
+import { makeRespondToSolanaPayPost, makeRespondToSolanaPayGet } from ".";
 
 async function hyperspaceCreateBuyTx(
   buyer: string,
@@ -28,7 +29,7 @@ async function hyperspaceCreateBuyTx(
   };
 }
 
-export async function createBuyNFT(req: Request) {
+export async function createBuyNFT(req: NextApiRequest) {
   const { token, price } = req.query;
   const { account: buyer } = req.body;
   return await hyperspaceCreateBuyTx(
@@ -37,3 +38,7 @@ export async function createBuyNFT(req: Request) {
     Number.parseFloat(price as string)
   );
 }
+
+export default makeRespondToSolanaPayGet(
+  makeRespondToSolanaPayPost(createBuyNFT)
+);

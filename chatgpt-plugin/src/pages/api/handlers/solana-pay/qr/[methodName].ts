@@ -1,22 +1,23 @@
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 import { encode } from "querystring";
 
 import { encodeURL } from "@solana/pay";
 import * as qrcode from "qrcode";
 import sharp from "sharp";
 
-import {
+import configConstants, {
   SELF_URL,
   SOLANA_PAY_LABEL,
-  TX_DESCRIPTIONS,
-  TransactionEndpoints,
 } from "../../../constants";
+configConstants();
 
 async function createQRCodePng(
   methodName: string,
   encoded: string
 ): Promise<Buffer> {
-  let uri = new URL(`${SELF_URL}/sign/${methodName}?${encoded}`);
+  let uri = new URL(
+    `${SELF_URL}/api/handlers/solana-pay/sign/${methodName}?${encoded}`
+  );
   let solanaPayUrl = encodeURL({
     link: uri,
     label: SOLANA_PAY_LABEL,
@@ -30,17 +31,27 @@ async function createQRCodePng(
     .extend({
       extendWith: "background",
       background: "#ffffff",
-      left: 110,
-      right: 110,
+      left: 10,
+      right: 10,
     })
     .toBuffer();
 }
 
-export function makeCreateQrCode(methodName: TransactionEndpoints) {
-  return async (req: Request, res: Response) => {
-    console.log("QR code requested:", methodName, req.query);
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const {
+    query: { methodName },
+  } = req;
 
-    let buffer = await createQRCodePng(methodName, encode(Object(req.query)));
-    res.status(200).send(buffer);
-  };
+  console.log("QR code requested:", methodName, req.query);
+
+  let buffer = await createQRCodePng(
+    methodName as string,
+    encode(Object(req.query))
+  );
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Content-Disposition", "inline");
+  res.status(200).send(buffer);
 }

@@ -9,10 +9,10 @@
     },
     "api": {
       "type": "openapi",
-      "url": "http://localhost:3000/openapi.yaml",
+      "url": "https://dcc0-66-65-157-10.ngrok-free.app/openapi.yaml",
       "has_user_authentication": false
     },
-    "logo_url": "http://localhost:3000/logo.png",
+    "logo_url": "https://dcc0-66-65-157-10.ngrok-free.app/logo.png",
     "contact_email": "noah.gundotra@solana.com", 
     "legal_info_url": "https://solanapay.com/tos"
 }

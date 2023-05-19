@@ -1,18 +1,16 @@
 import express from "express";
+
 import { Connection } from "@solana/web3.js";
 import { HyperspaceClient } from "hyperspace-client-js";
-import { createBuyNFT } from "./handlers/transaction-handlers/createBuyNFT";
-import { TransactionHandler } from "./handlers/transaction-handlers";
-import { createWriteNFTMetadata } from "./handlers/transaction-handlers/createWriteNFTMetadata";
-import { createCloseNFTMetadata } from "./handlers/transaction-handlers/createCloseNFTMetadata";
-import { createTransferToken } from "./handlers/transaction-handlers/createTransferToken";
-import { createTransferSol } from "./handlers/transaction-handlers/createTranferSol";
 
 export const APP = express();
 export const PORT = process.env.PORT || 3333;
 
 export const SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com";
 export const CONNECTION = new Connection(SOLANA_RPC_URL);
+
+import dotenv from "dotenv";
+dotenv.config();
 
 // Internal Solana Pay constants
 export const SOLANA_PAY_LABEL = "Solana GPT Plugin";
@@ -29,13 +27,6 @@ export const TX_DESCRIPTIONS: Record<TransactionEndpoints, string> = {
   createTransferToken: "Sign to Transfer Token",
   createTransferSol: "Sign to Transfer Sol",
 };
-export const TX_HANDLERS: Record<TransactionEndpoints, TransactionHandler> = {
-  createBuyNFT: createBuyNFT,
-  createWriteNFTMetadata: createWriteNFTMetadata,
-  createCloseNFTMetadata: createCloseNFTMetadata,
-  createTransferToken: createTransferToken,
-  createTransferSol: createTransferSol,
-};
 
 // Inferred Constants
 export let HELIUS_URL: string;
@@ -47,7 +38,8 @@ export default function index() {
   if (process.env.DEV === "true") {
     SELF_URL = `http://localhost:${PORT}`;
   } else {
-    SELF_URL = "https://solana-gpt-plugin.onrender.com";
+    SELF_URL = "https://dcc0-66-65-157-10.ngrok-free.app";
+    //"https://solana-gpt-plugin.onrender.com";
   }
 
   HYPERSPACE_CLIENT = new HyperspaceClient(

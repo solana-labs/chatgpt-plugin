@@ -1,14 +1,18 @@
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { CONNECTION } from "../../constants";
+import configConstants, { CONNECTION } from "../../constants";
+configConstants();
 
 type TokenInfo = {
   mint: string;
   amount: string;
 };
 
-export async function getTokenAccounts(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   let result = await CONNECTION.getParsedTokenAccountsByOwner(
     new PublicKey(req.body.address),
     { programId: TOKEN_PROGRAM_ID },

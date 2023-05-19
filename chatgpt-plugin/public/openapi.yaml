@@ -3,10 +3,8 @@ info:
   title: Retrieval Plugin API
   description: A retrieval API for querying and filtering documents based on natural language queries and metadata
   version: 1.0.0
-  servers:
-    - url: http://localhost:3333/api
 paths:
-  /getAssetsByOwner:
+  /api/handlers/getAssetsByOwner:
     post:
       summary: getAssetsByOwner
       description: Accepts Solana publicKey address. Returns Metaplex NFTs owned by the address
@@ -32,7 +30,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getAccountInfo:
+  /api/handlers/getAccountInfo:
     post:
       summary: getAccountInfo
       description: Accepts Solana publicKey address. Returns information the account data
@@ -58,7 +56,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getTokenAccounts:
+  /api/handlers/getTokenAccounts:
     post:
       summary: getTokenAccounts
       description: Returns the fungible and non-fungible tokens and amounts owned by the address. May show tokens not listed in /getAssetsByOwner
@@ -84,7 +82,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getBalance:
+  /api/handlers/getBalance:
     post:
       summary: getBalance
       description: Accepts Solana publicKey address. Returns the amount of lamports that the account has available.
@@ -110,7 +108,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getTransaction:
+  /api/handlers/getTransaction:
     post:
       summary: getTransaction
       description: Accepts a transaction signature. Returns the publicly available transaction information and metadata
@@ -135,7 +133,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getSignaturesForAddress:
+  /api/handlers/getSignaturesForAddress:
     post:
       summary: getSignaturesForAddress
       description: Accepts Solana publicKey address. Returns the latest transaction signatures that involve that address
@@ -161,7 +159,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getCollectionsByFloorPrice:
+  /api/handlers/getCollectionsByFloorPrice:
     post:
       summary: Search through Solana NFT collections by floor price
       operationId: query_nft_collections_by_fp
@@ -185,7 +183,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /createCloseNFTMetadata:
+  /api/handlers/tx-link/createCloseNFTMetadata:
     post:
       summary: Allows the user to close NFT metadata on-chain and redeem the account's SOL
       operationId: create_close_nft_metadata_tx
@@ -209,7 +207,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /createWriteNFTMetadata:
+  /api/handlers/tx-link/createWriteNFTMetadata:
     post:
       summary: Allows the user to write NFT metadata on-chain
       operationId: create_write_nft_metadata_tx
@@ -233,7 +231,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /createTransferToken:
+  /api/handlers/createTransferToken:
     post:
       summary: Allows the user to transfer a token to ownership of another account
       operationId: create_transfer_token_tx
@@ -257,7 +255,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /createTransferSol:
+  /api/handlers/tx-link/createTransferSol:
     post:
       summary: Allows the user to transfer Sol to another account
       operationId: create_transfer_sol_tx
@@ -281,7 +279,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /createBuyNFT:
+  /api/handlers/tx-link/createBuyNFT:
     post:
       summary: Accepts accounts needed to buy the NFT represented by the token
       operationId: create_buy_nft_tx
@@ -305,7 +303,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /getListedCollectionNFTs:
+  /api/handlers/tx-link/getListedCollectionNFTs:
     post:
       summary: Returns the listed NFTs in a collection available to purchase
       operationId: query_listed_nfts_for_collection
@@ -833,7 +831,7 @@ components:
     transactionResponse:
       type: object
       properties:
-        linkToSign:
+        qrCode:
           type: string
     getListedCollectionNFTsRequest:
       type: object

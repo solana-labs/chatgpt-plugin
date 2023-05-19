@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
-import { HYPERSPACE_CLIENT } from "../../constants";
+import configConstants, { HYPERSPACE_CLIENT } from "../../constants";
+configConstants();
 
 type CollectionStats = {
   id: string;
@@ -80,7 +81,10 @@ async function hyperspaceGetCollectionsByFloorPrice(
   };
 }
 
-export async function getCollectionsByFloorPrice(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { maxFloorPrice, minFloorPrice, orderBy, pageSize, humanReadable } =
     req.body;
   const result = await hyperspaceGetCollectionsByFloorPrice(

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey, Connection, Keypair } from "@solana/web3.js";
 import {
   Program,
@@ -88,7 +88,15 @@ async function getParsedAccountInfo(
   return accountInfo || {};
 }
 
-export async function getAccountInfo(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method != "POST") {
+    res.status(405).send({ message: "Only POST requests allowed" });
+    return;
+  }
+
   const accountAddress = new PublicKey(req.body.address);
   const accountInfo = await getParsedAccountInfo(CONNECTION, accountAddress);
   res.status(200).send({ message: JSON.stringify(accountInfo) });

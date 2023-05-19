@@ -1,12 +1,13 @@
-import { Request } from "express";
+import { NextApiRequest } from "next";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import {
   createTransferInstruction,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import { CONNECTION } from "../../../constants";
+import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 
-export async function createTransferToken(req: Request) {
+async function createTransferToken(req: NextApiRequest) {
   const { mint, destination, amount } = req.query;
   const { account: sender } = req.body;
 
@@ -37,3 +38,7 @@ export async function createTransferToken(req: Request) {
       .toString("base64"),
   };
 }
+
+export default makeRespondToSolanaPayGet(
+  makeRespondToSolanaPayPost(createTransferToken)
+);

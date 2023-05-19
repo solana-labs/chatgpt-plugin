@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import NextCors from "nextjs-cors";
 import path from "path";
 import fs from "fs";
-import AIPlugin from "public/ai-plugin.json";
+// import AIPlugin from "public/ai-plugin.json";
 import Logo from "public/logo.png";
 
 export default async function handler(
@@ -24,9 +24,7 @@ export default async function handler(
   const {
     query: { file },
   } = req;
-  if (file === "ai-plugin.json") {
-    res.status(200).send(AIPlugin);
-  } else if (file == "logo.png") {
+  if (file == "logo.png") {
     res.status(200).send(Logo);
   } else if (file == "openapi.yaml") {
     // Construct path to yaml file
