@@ -18,7 +18,7 @@ export default function Home() {
             exact
             path="/"
             component={() => {
-              window.location.href = "https://solanalabs.com/ai";
+              window.location.href = "https://solana.com/ai";
               return null;
             }}
           />
