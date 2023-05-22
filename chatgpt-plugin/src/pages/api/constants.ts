@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Internal Solana Pay constants
-export const SOLANA_PAY_LABEL = "Solana GPT Plugin";
+export const SOLANA_PAY_LABEL = "Solana Labs ChatGPT Plugin";
 export const TRANSACTION_ENDPOINTS = [
   "createBuyNFT",
   "createWriteNFTMetadata",
@@ -38,7 +38,8 @@ export default function index() {
   if (process.env.DEV === "true") {
     SELF_URL = `http://localhost:${PORT}`;
   } else {
-    SELF_URL = "https://chatgpt.solanalabs.com";
+    // SELF_URL = "https://chatgpt.solanalabs.com";
+    SELF_URL = "https://1f1c-66-65-157-10.ngrok-free.app";
   }
 
   HYPERSPACE_CLIENT = new HyperspaceClient(
