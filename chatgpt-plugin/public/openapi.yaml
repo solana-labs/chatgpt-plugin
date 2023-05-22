@@ -279,6 +279,30 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
+  /api/handlers/getCollectionsByName:
+    post:
+      summary: Searches for NFT collections based on project name
+      operationId: query_nfts_collections_by_name
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/getCollectionsByNameRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getListedCollectionNFTsResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
 components:
   schemas:
     getAccountInfoRequest:
@@ -775,6 +799,11 @@ components:
       properties:
         qrCode:
           type: string
+    getCollectionsByNameRequest:
+      type: object
+      properties:
+        projectName:
+          type: string
     getListedCollectionNFTsRequest:
       type: object
       properties:
@@ -786,6 +815,32 @@ components:
         pageSize:
           type: number
           nullable: true
+
+    getCollectionNFTsByNameResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items: { $ref: "#/components/schemas/CollectionInfo" }
+    CollectionInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        verified:
+          type: boolean
+        name:
+          type: string
+        img:
+          type: string
+        website:
+          type: string
+        floorPrice:
+          type: number
+        twitterFollowers:
+          type: number
+        twitter:
+          type: string
     getListedCollectionNFTsResponse:
       type: object
       properties:
