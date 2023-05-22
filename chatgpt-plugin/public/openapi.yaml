@@ -255,31 +255,7 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /api/handlers/tx-link/createListNFT:
-    post:
-      summary: Accepts accounts needed to list the NFT represented by the token
-      operationId: create_list_nft_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NFTExchangeTransactionRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-  /api/handlers/tx-link/getListedCollectionNFTs:
+  /api/handlers/getListedCollectionNFTs:
     post:
       summary: Returns the listed NFTs in a collection available to purchase
       operationId: query_listed_nfts_for_collection
