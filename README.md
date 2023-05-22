@@ -1,5 +1,5 @@
 # Solana ChatGPT Plugin
-A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://solana-gpt-plugin.onrender.com`.
+A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://chatgpt.solanalabs.com`.
 
 <div>
 <img width="350" alt="Transfer Sol in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383403-f92b8aa1-bb11-47d8-89d9-3369192dfdf1.png">
