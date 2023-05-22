@@ -22,7 +22,6 @@ async function createQRCodePng(
     link: uri,
     label: SOLANA_PAY_LABEL,
   });
-  console.log("Solana pay url", solanaPayUrl.toString());
 
   let dataUrl = await qrcode.toDataURL(solanaPayUrl.toString());
   const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");

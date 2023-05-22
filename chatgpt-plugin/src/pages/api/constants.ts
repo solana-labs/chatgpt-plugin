@@ -38,7 +38,7 @@ export default function index() {
   if (process.env.DEV === "true") {
     SELF_URL = `http://localhost:${PORT}`;
   } else {
-    SELF_URL = "https://dcc0-66-65-157-10.ngrok-free.app";
+    SELF_URL = "https://1f1c-66-65-157-10.ngrok-free.app";
     //"https://solana-gpt-plugin.onrender.com";
   }
 
