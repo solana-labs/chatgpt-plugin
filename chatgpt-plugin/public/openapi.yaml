@@ -183,54 +183,6 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /api/handlers/tx-link/createCloseNFTMetadata:
-    post:
-      summary: Allows the user to close NFT metadata on-chain and redeem the account's SOL
-      operationId: create_close_nft_metadata_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/createCloseNFTMetadataRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-  /api/handlers/tx-link/createWriteNFTMetadata:
-    post:
-      summary: Allows the user to write NFT metadata on-chain
-      operationId: create_write_nft_metadata_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/createWriteNFTMetadataRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
   /api/handlers/createTransferToken:
     post:
       summary: Allows the user to transfer a token to ownership of another account

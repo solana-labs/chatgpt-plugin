@@ -1,3 +1,6 @@
+/**
+ * Deprecated until Compressed NFT creation is supported
+ */
 import { NextApiRequest } from "next";
 import { CONNECTION } from "../../../constants";
 import { createWriteNFTMetadataTx } from "../../../../../app/on-chain-metadata";
