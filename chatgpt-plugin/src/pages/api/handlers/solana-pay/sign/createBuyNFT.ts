@@ -2,7 +2,9 @@ import { NextApiRequest } from "next";
 
 import { base64 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
-import { HYPERSPACE_CLIENT } from "../../../constants";
+import configConstants, { HYPERSPACE_CLIENT } from "../../../constants";
+configConstants();
+
 import { makeRespondToSolanaPayPost, makeRespondToSolanaPayGet } from ".";
 
 async function hyperspaceCreateBuyTx(
