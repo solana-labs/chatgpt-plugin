@@ -239,7 +239,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/createBuyTransactionRequest"
+              $ref: "#/components/schemas/NFTExchangeTransactionRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/transactionResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
+  /api/handlers/tx-link/createListNFT:
+    post:
+      summary: Accepts accounts needed to list the NFT represented by the token
+      operationId: create_list_nft_tx
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NFTExchangeTransactionRequest"
       responses:
         "200":
           description: Successful Response
@@ -747,23 +771,13 @@ components:
           type: string
         floor_price:
           type: number
-    createBuyTransactionRequest:
+    NFTExchangeTransactionRequest:
       type: object
       properties:
         token:
           type: string
         price:
           type: number
-    createWriteNFTMetadataRequest:
-      type: object
-      properties:
-        image:
-          type: string
-    createCloseNFTMetadataRequest:
-      type: object
-      properties:
-        account:
-          type: string
     createTransferTokenRequest:
       type: object
       properties:
