@@ -1,14 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  redirects() {
-    return [
-      {
-        source: "/",
-        destination: "https://solana.com/developers/ai",
-        permanent: false,
-      },
-    ];
-  },
-};
+const nextConfig = {};
 
 module.exports = nextConfig;

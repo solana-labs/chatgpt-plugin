@@ -24,7 +24,13 @@ async function hyperspaceGetCollectionsByFloorPrice(
   let pageNumber = 1;
   let results: CollectionStats[] = [];
   let hasMore = true;
-  while (results.length < pageSize && hasMore) {
+
+  const PAGE_SCRAPE_LIMIT = 10;
+  while (
+    results.length < pageSize &&
+    pageNumber < PAGE_SCRAPE_LIMIT &&
+    hasMore
+  ) {
     let projects = await HYPERSPACE_CLIENT.getProjects({
       condition: {
         floorPriceFilter: {

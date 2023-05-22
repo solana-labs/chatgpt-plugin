@@ -21,7 +21,13 @@ async function hyperspaceGetListedCollectionNFTs(
   let listedNFTs: NFTListing[] = [];
   let hasMore = true;
   let pageNumber = 1;
-  while (listedNFTs.length < pageSize && hasMore) {
+  let pagesScraped = 0;
+  const PAGE_SCRAPE_LIMIT = 10;
+  while (
+    listedNFTs.length < pageSize &&
+    hasMore &&
+    pagesScraped < PAGE_SCRAPE_LIMIT
+  ) {
     let results = await HYPERSPACE_CLIENT.getMarketplaceSnapshot({
       condition: {
         projects: [{ project_id: projectId }],
