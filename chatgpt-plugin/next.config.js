@@ -5,7 +5,7 @@ const nextConfig = {
       {
         source: "/",
         destination: "https://solana.com/developers/ai",
-        permanent: true,
+        permanent: false,
       },
     ];
   },
