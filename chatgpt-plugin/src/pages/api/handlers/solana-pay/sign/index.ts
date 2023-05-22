@@ -9,7 +9,7 @@ type NextApiHandler = (
   res: NextApiResponse
 ) => Promise<void>;
 
-export async function makeRespondToSolanaPayGet(apiHandler: NextApiHandler) {
+export function makeRespondToSolanaPayGet(apiHandler: NextApiHandler) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "GET") {
       res.status(200).json({
