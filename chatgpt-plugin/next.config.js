@@ -2,11 +2,11 @@
 const nextConfig = {
   redirects() {
     return [
-      {
-        source: "/",
-        destination: "https://solana.com/developers/ai",
-        permanent: false,
-      },
+      // {
+      //   source: "/",
+      //   destination: "https://solana.com/developers/ai",
+      //   permanent: false,
+      // },
     ];
   },
 };
