@@ -799,6 +799,8 @@ components:
       properties:
         qrCode:
           type: string
+        disclaimer:
+          type: string
     getCollectionsByNameRequest:
       type: object
       properties:
