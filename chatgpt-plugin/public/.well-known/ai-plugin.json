@@ -9,7 +9,7 @@
     },
     "api": {
       "type": "openapi",
-      "url": "https://d4d7-74-108-48-114.ngrok-free.app/openapi.yaml",
+      "url": "https://chatgpt.solanalabs.com/openapi.yaml",
       "has_user_authentication": false
     },
     "logo_url": "https://chatgpt.solanalabs.com/logo.png",
