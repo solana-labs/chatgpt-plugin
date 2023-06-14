@@ -1,7 +1,6 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import load_tools, initialize_agent
 from langchain.agents import AgentType
-
 from plugintool import AIPluginTool
 
 if __name__ == '__main__':
@@ -29,25 +28,21 @@ if __name__ == '__main__':
     # print("Log: Now we're printing the prompt and what led to the decisions:")
     # print(agent_chain.agent.llm_chain.prompt.template)
 
-    # All the chains will run one by one independently. Can test any one of them individually. 
+    # All the chains will run one by one independently. You can test any one of them individually. 
     # Ask the question, and the agent loop
     # Case 1 (getBalance):
-    agent_chain.run("How many lamports does 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625 have?")
+    agent_chain.run("What is the balance in account 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625?")
     # Expected response: <Numerical value>
-
-    # Case 2 (getBalance):
-    agent_chain.run("Balance in account 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625 have?")
-    # Expected response: The balance of account 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625 is <Numerical value>.
     
-    # Case 3 (getAccountInfo): 
+    # Case 2 (getAccountInfo): 
     agent_chain.run("Could you some info for the account 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625?")
     # Expected response: The account 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625 has a balance of <Numerical value> lamports and is owned by the address <owner>.
 
-    # Case 4 (getTokenAccounts): 
+    # Case 3 (getTokenAccounts): 
     agent_chain.run("Could you tell me all the assets owned by owner 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625 ?")
     # Expected response: The assets owned by the owner with address 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625 are [{"mint":<Address>,"amount":<Numerical Value>}].
     
 
-    # Case 5 (getTokenAccounts): 
+    # Case 4 (getTokenAccounts): 
     agent_chain.run("Could you tell me the last transaction i made on Solana with address 8fbqVvpK3Dj7fdP2c8JJhtD7Zy3n9qtwAeGfbkgPu625?")
     # Expected response: The last transaction made by the given address is the one with signature <Signature>.
