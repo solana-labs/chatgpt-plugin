@@ -23,10 +23,10 @@ export default function Home() {
         </section>
 
         <p className="my-10 text-center">
-          This extension is for querying the Solana blockchain to find answers to questions and
-          retrieve relevant information. Use it whenever a user asks something that might be related
-          to their Solana account. It can also be used to create QR codes to send tokens and buy
-          NFTs. Even read Solana blockchain data (different from a Solana RPC).
+          The Solana Labs ChatGPT Plugin helps you query information the Solana blockchain and
+          create QR codes to perform basic actions on Solana, like transferring a token or buying an
+          NFT. Solana Labs has provided the code as a reference implementation with permissive
+          licensing on Github. A list of features and example queries is provided below.
         </p>
 
         <div className="flex items-center justify-center gap-5 my-3">
