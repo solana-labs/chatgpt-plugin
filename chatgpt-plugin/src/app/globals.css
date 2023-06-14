@@ -90,3 +90,8 @@ h2 {
 
 /* utilities at the end to make the inline classes a priority */
 @tailwind utilities;
+
+.legal {
+  text-decoration: underline;
+  color: #00ffbd;
+}

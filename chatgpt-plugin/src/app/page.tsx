@@ -46,8 +46,9 @@ export default function Home() {
         </div>
 
         <section className="my-10 space-y-6">
+          <h2 className="text-3xl ml-3">Features</h2>
           {features.map((endpoint, id) => (
-            <Disclosure>
+            <Disclosure key={id}>
               {({ open }) => (
                 <div className="">
                   <Disclosure.Button className={`disclosure ${open ? "disclosure-open" : ""}`}>
