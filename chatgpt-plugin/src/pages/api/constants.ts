@@ -43,7 +43,5 @@ export default function index() {
     // SELF_URL = "https://d4d7-74-108-48-114.ngrok-free.app";
   }
 
-  HYPERSPACE_CLIENT = new HyperspaceClient(
-    process.env.HYPERSPACE_API_KEY as string
-  );
+  HYPERSPACE_CLIENT = new HyperspaceClient(process.env.HYPERSPACE_API_KEY as string);
 }

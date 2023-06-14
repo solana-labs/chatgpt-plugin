@@ -1,27 +1,90 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
     rgb(var(--background-start-rgb));
+}
+
+.ms-6 {
+  margin-left: 2rem !important;
+}
+img,
+svg {
+  vertical-align: middle;
+}
+@media (min-width: 768px) {
+  .AiHero_hero__title__ZatKJ {
+    font-size: 6rem;
+    line-height: 6rem;
+    margin-bottom: 32px !important;
+  }
+}
+.AiHero_hero__title__ZatKJ {
+  font-weight: 700;
+  font-size: 3.5rem;
+  margin-bottom: 24px !important;
+}
+h2 {
+  font-size: 2.425rem;
+  line-height: 3.15rem;
+  font-weight: 400;
+}
+.czAcYK.btn {
+  font-family: DSemi, monospace;
+  font-weight: normal;
+  text-transform: uppercase;
+  line-height: 1.25rem;
+  font-size: 0.95rem;
+  width: fit-content;
+  background-color: rgb(153, 69, 255);
+  border-radius: 2.25rem;
+  padding: 0.875rem 1.5rem;
+  color: white;
+  border: 1px solid transparent;
+}
+
+.lift {
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.btn {
+  background-color: rgb(153, 69, 255);
+  @apply flex items-center gap-3 px-5 py-3 text-lg transition transform whitespace-nowrap rounded-3xl;
+  @apply hover:bg-white hover:text-black;
+  @apply hover:-translate-y-1;
+}
+.btn svg {
+  @apply w-5 h-5;
+}
+
+.disclosure {
+  @apply flex items-center justify-between w-full px-4 py-2 rounded-xl;
+  @apply text-white bg-gray-800;
+  @apply hover:bg-opacity-80;
+  @apply border border-gray-700;
+}
+.disclosure-open {
+  @apply font-semibold;
+  @apply bg-gray-800 border-gray-600 hover:bg-opacity-100;
+}
+
+.disclosure svg {
+  @apply w-5 h-5;
+}
+
+/* utilities at the end to make the inline classes a priority */
+@tailwind utilities;
+
+.legal {
+  text-decoration: underline;
+  color: #00ffbd;
 }
