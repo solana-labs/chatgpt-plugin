@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
+    "@headlessui/react": "^1.7.15",
+    "@heroicons/react": "^2.0.18",
     "@metaplex-foundation/js": "^0.19.3",
     "@solana/pay": "^0.2.5",
     "@solana/spl-token": "^0.3.7",
