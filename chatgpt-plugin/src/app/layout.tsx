@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Solana Labs ChatGPT RPC Extension",
+  title: "Solana Labs - ChatGPT Plugin",
   description: "Get a taste of Solana",
 };
 
