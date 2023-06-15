@@ -12,7 +12,7 @@
       "url": "https://chatgpt.solanalabs.com/openapi.yaml",
       "has_user_authentication": false
     },
-    "logo_url": "https://chatgpt.solanalabs.com/logo.png",
+    "logo_url": "https://chatgpt.solanalabs.com/logo.ico",
     "contact_email": "noah.gundotra@solana.com", 
     "legal_info_url": "https://solanapay.com/tos"
 }
