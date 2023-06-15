@@ -24,11 +24,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {children}
 
-        <footer className="mt-8 text-center text-gray-400">
+        <footer className="my-8 text-center text-gray-400">
           &copy;
           {new Date().getFullYear()}{" "}
           <Link href="https://solanalabs.com" className="hover:underline hover:text-white">
             Solana Labs
+          </Link>
+          {" | "}
+          <Link href="https://solanapay.com/tos" className="hover:underline hover:text-white">
+            Terms of Service
           </Link>
         </footer>
       </body>
