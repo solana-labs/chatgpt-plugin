@@ -39,8 +39,6 @@ export default function index() {
     SELF_URL = `http://localhost:${PORT}`;
   } else {
     SELF_URL = "https://chatgpt.solanalabs.com";
-    // SELF_URL = "https://1f1c-66-65-157-10.ngrok-free.app";
-    // SELF_URL = "https://d4d7-74-108-48-114.ngrok-free.app";
   }
 
   HYPERSPACE_CLIENT = new HyperspaceClient(process.env.HYPERSPACE_API_KEY as string);
