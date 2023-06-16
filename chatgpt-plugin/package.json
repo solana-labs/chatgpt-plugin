@@ -15,7 +15,7 @@
     "@heroicons/react": "^2.0.18",
     "@metaplex-foundation/js": "^0.19.3",
     "@solana/pay": "^0.2.5",
-    "@solana/spl-token": "^0.3.7",
+    "@solana/spl-token": "^0.3.8",
     "@solana/web3.js": "^1.76.0",
     "@types/node": "20.1.7",
     "@types/react": "18.2.6",

@@ -4,8 +4,21 @@ configConstants();
 
 import * as anchor from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { program } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { stringifyAnchorObject } from "../getAccountInfo";
+import {
+  ComputeBudgetInstruction,
+  ComputeBudgetInstructionType,
+  ComputeBudgetProgram,
+  ParsedInstruction,
+  PartiallyDecodedInstruction,
+  SystemProgram,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+
+// Setup Solflare
+import { Client } from "@solflare-wallet/utl-sdk";
+const utl = new Client();
 
 type IxArgs = Record<string, string>;
 
@@ -38,11 +51,7 @@ async function getAnchorProgram(programId: string) {
   try {
     const program = await anchor.Program.at(
       programId,
-      new anchor.AnchorProvider(
-        CONNECTION,
-        new NodeWallet(anchor.web3.Keypair.generate()),
-        {}
-      )
+      new anchor.AnchorProvider(CONNECTION, new NodeWallet(anchor.web3.Keypair.generate()), {}),
     );
     PROGRAM_CACHE.set(programId, program);
     return program;
@@ -52,10 +61,7 @@ async function getAnchorProgram(programId: string) {
   }
 }
 
-async function parseAnchorIxData(
-  programId: anchor.web3.PublicKey,
-  ixData: string
-) {
+async function parseAnchorIxData(programId: anchor.web3.PublicKey, ixData: string) {
   const program = await getAnchorProgram(programId.toString());
   if (!program) {
     return null;
@@ -67,7 +73,7 @@ async function parseAnchorIxData(
 async function parseAnchorIxAccounts(
   programAddress: string,
   accounts: string[],
-  ix: anchor.Instruction
+  ix: anchor.Instruction,
 ) {
   const program = await getAnchorProgram(programAddress);
 
@@ -75,9 +81,7 @@ async function parseAnchorIxAccounts(
     return null;
   }
 
-  const ixDef = program?.idl.instructions.find(
-    (ixDef: any) => ixDef.name === ix.name
-  );
+  const ixDef = program?.idl.instructions.find((ixDef: any) => ixDef.name === ix.name);
   if (ixDef) {
     let parsedAccounts = ixDef.accounts as {
       // type coercing since anchor doesn't export the underlying type
@@ -104,47 +108,97 @@ async function parseAnchorIxAccounts(
 }
 
 export function snakeToTitleCase(str: string): string {
-  const result = str.replace(/([-_]\w)/g, (g) => ` ${g[1].toUpperCase()}`);
+  const result = str.replace(/([-_]\w)/g, g => ` ${g[1].toUpperCase()}`);
   return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
 async function parseAnchorIx(ix: Instruction) {
   let parsedIx = await parseAnchorIxData(
     new anchor.web3.PublicKey(ix.programId),
-    ix.ixData as string
+    ix.ixData as string,
   );
   if (!parsedIx) {
     return ix;
   }
 
-  let parsedAccounts = await parseAnchorIxAccounts(
-    ix.programId,
-    ix.keys,
-    parsedIx
-  );
+  let parsedAccounts = await parseAnchorIxAccounts(ix.programId, ix.keys, parsedIx);
 
   let ixTitle = parsedIx.name;
   ixTitle = ixTitle.charAt(0).toUpperCase() + ixTitle.slice(1);
   let program = await getAnchorProgram(ix.programId);
   return {
     programId: `${snakeToTitleCase(program!.idl.name)} (${ix.programId})`,
-    ixData: `${ixTitle} ${JSON.stringify(
-      stringifyAnchorObject(parsedIx.data)
-    )}`,
+    ixData: `${ixTitle} ${JSON.stringify(stringifyAnchorObject(parsedIx.data))}`,
     keys: parsedAccounts ?? ix.keys,
     depth: ix.depth,
   };
 }
 
-function parseTokenChanges(
+async function parseIx(ix: TransactionInstruction, depth: number): Promise<Instruction> {
+  let programAddress = ix.programId.toBase58();
+
+  let parsedIx: Instruction = {
+    programId: programAddress,
+    keys: ix.keys.map(k => k.pubkey.toBase58()),
+    ixData: "",
+    depth,
+  };
+  if (programAddress === SystemProgram.programId.toBase58()) {
+  } else if (programAddress === TOKEN_2022_PROGRAM_ID.toBase58()) {
+  } else if (programAddress === TOKEN_PROGRAM_ID.toBase58()) {
+  } else if (programAddress === ComputeBudgetProgram.programId.toBase58()) {
+    parsedIx.programId = "Compute Budget Program";
+    let type: ComputeBudgetInstructionType = ComputeBudgetInstruction.decodeInstructionType(ix);
+
+    switch (type) {
+      case "RequestHeapFrame":
+        parsedIx.ixData = stringifyAnchorObject({
+          RequestHeapFrame: ComputeBudgetInstruction.decodeRequestHeapFrame(ix),
+        });
+        break;
+      case "RequestUnits":
+        parsedIx.ixData = stringifyAnchorObject({
+          RequestUnits: ComputeBudgetInstruction.decodeRequestUnits(ix),
+        });
+        break;
+      case "SetComputeUnitLimit":
+        parsedIx.ixData = stringifyAnchorObject({
+          SetComputeUnitLimit: ComputeBudgetInstruction.decodeSetComputeUnitLimit(ix),
+        });
+        break;
+      case "SetComputeUnitPrice":
+        parsedIx.ixData = stringifyAnchorObject({
+          SetComputeUnit: ComputeBudgetInstruction.decodeSetComputeUnitPrice(ix),
+        });
+        break;
+    }
+  } else {
+    return await parseAnchorIx({
+      programId: programAddress,
+      ixData: anchor.utils.bytes.base64.encode(ix.data),
+      keys: ix.keys.map(k => k.pubkey.toBase58()),
+      depth,
+    });
+  }
+  return parsedIx;
+}
+
+async function parseTokenChanges(
   preBalances: anchor.web3.ConfirmedTransactionMeta["preTokenBalances"],
-  postBalances: anchor.web3.ConfirmedTransactionMeta["postTokenBalances"]
+  postBalances: anchor.web3.ConfirmedTransactionMeta["postTokenBalances"],
 ) {
-  if (
-    !postBalances ||
-    !preBalances ||
-    postBalances.length != preBalances.length
-  ) {
+  let mints = new Set([...preBalances!.map(b => b.mint), ...postBalances!.map(b => b.mint)]);
+  let mintData = await utl.fetchMints(
+    Array.from(mints.keys()).map(k => new anchor.web3.PublicKey(k)),
+  );
+  let mintMap: Record<string, string> = {};
+  mintData
+    .filter(token => token.verified ?? true)
+    .forEach(m => {
+      mintMap[m.address.toString()] = m.symbol;
+    });
+
+  if (!postBalances || !preBalances || postBalances.length != preBalances.length) {
     return null;
   }
 
@@ -152,9 +206,8 @@ function parseTokenChanges(
   for (let i = 0; i < postBalances?.length; i++) {
     let pre = preBalances[i];
     let post = postBalances[i];
-    let tokenChange =
-      (post.uiTokenAmount.uiAmount ?? 0) - (pre.uiTokenAmount.uiAmount ?? 0);
-    changes[pre.owner!] = { mint: pre.mint, amount: tokenChange };
+    let tokenChange = (post.uiTokenAmount.uiAmount ?? 0) - (pre.uiTokenAmount.uiAmount ?? 0);
+    changes[pre.owner!] = { mint: mintMap[pre.mint] ?? pre.mint, amount: tokenChange };
   }
   return changes;
 }
@@ -162,7 +215,7 @@ function parseTokenChanges(
 function parseSolChanges(
   accounts: anchor.web3.PublicKey[],
   preBalances: number[],
-  postBalances: number[]
+  postBalances: number[],
 ) {
   if (preBalances.length != postBalances.length) {
     return null;
@@ -193,10 +246,7 @@ function parseLogs(logs: string[]): { programId: string; depth: number }[] {
 }
 
 // TODO(ngundotra): add support for System program + SPL programs
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const signature = req.body.signature;
   const transaction = await CONNECTION.getTransaction(signature, {
     maxSupportedTransactionVersion: 2,
@@ -210,21 +260,17 @@ export default async function handler(
 
   // Reconstruct account array
   let accounts = transaction?.transaction.message.staticAccountKeys ?? [];
-  accounts = accounts.concat(
-    transaction?.meta?.loadedAddresses?.readonly ?? []
-  );
-  accounts = accounts.concat(
-    transaction?.meta?.loadedAddresses?.writable ?? []
-  );
+  accounts = accounts.concat(transaction?.meta?.loadedAddresses?.readonly ?? []);
+  accounts = accounts.concat(transaction?.meta?.loadedAddresses?.writable ?? []);
 
-  let tokenBalanceChanges = parseTokenChanges(
+  let tokenBalanceChanges = await parseTokenChanges(
     transaction?.meta?.preTokenBalances,
-    transaction?.meta?.postTokenBalances
+    transaction?.meta?.postTokenBalances,
   );
   let solChanges = parseSolChanges(
     accounts,
     transaction?.meta?.preBalances ?? [],
-    transaction?.meta?.postBalances ?? []
+    transaction?.meta?.postBalances ?? [],
   );
 
   // Keep track of order of instructions (may not be able get stack depth for each inner ix because of log truncation)
@@ -234,16 +280,23 @@ export default async function handler(
   // Loop through top-level instructions
   let outerIdx = 0;
   let innerIdx = 0;
-  for (const outerIx of transaction?.transaction.message.compiledInstructions ??
-    []) {
-    const programId = accounts[outerIx.programIdIndex].toBase58();
+  for (const outerIx of transaction?.transaction.message.compiledInstructions ?? []) {
+    const programId = accounts[outerIx.programIdIndex];
     instructions.push(
-      await parseAnchorIx({
-        programId: programId,
-        ixData: anchor.utils.bytes.base64.encode(Buffer.from(outerIx.data)),
-        keys: outerIx.accountKeyIndexes.map((idx) => accounts[idx].toBase58()),
-        depth: 0,
-      })
+      await parseIx(
+        {
+          programId,
+          data: Buffer.from(outerIx.data ?? []),
+          keys: outerIx.accountKeyIndexes.map(idx => {
+            return {
+              pubkey: accounts[idx],
+              isSigner: false,
+              isWritable: false,
+            };
+          }),
+        },
+        0,
+      ),
     );
     traceIdx += 1;
 
@@ -251,21 +304,26 @@ export default async function handler(
     let innerIxBucket = transaction?.meta?.innerInstructions?.[innerIdx];
     if (innerIxBucket && innerIxBucket.index === outerIdx) {
       for (const innerIx of innerIxBucket.instructions) {
-        if (
-          parsedTrace[traceIdx].programId !==
-          accounts[innerIx.programIdIndex].toBase58()
-        ) {
-          throw new Error("fuck");
+        if (parsedTrace[traceIdx].programId !== accounts[innerIx.programIdIndex].toBase58()) {
+          // Make a note that the depth is unknown (somehow)
+          parsedTrace[traceIdx].depth = 1;
         }
+
         instructions.push(
-          await parseAnchorIx({
-            programId: accounts[innerIx.programIdIndex].toBase58(),
-            ixData: anchor.utils.bytes.base64.encode(
-              anchor.utils.bytes.bs58.decode(innerIx.data)
-            ),
-            keys: innerIx.accounts.map((idx) => accounts[idx].toBase58()),
-            depth: parsedTrace[traceIdx].depth ?? 1,
-          })
+          await parseIx(
+            {
+              programId: accounts[innerIx.programIdIndex],
+              keys: innerIx.accounts.map(key => {
+                return {
+                  pubkey: accounts[key],
+                  isSigner: false,
+                  isWritable: false,
+                };
+              }),
+              data: anchor.utils.bytes.bs58.decode(innerIx.data),
+            },
+            parsedTrace[traceIdx].depth,
+          ),
         );
         traceIdx += 1;
       }
@@ -274,8 +332,7 @@ export default async function handler(
 
     outerIdx += 1;
   }
-  const feePayer =
-    transaction?.transaction.message.staticAccountKeys[0].toBase58();
+  const feePayer = transaction?.transaction.message.staticAccountKeys[0]!.toBase58();
 
   let response: ParsedTxResponse = {
     txFeeInLamports: transaction?.meta?.fee!,
