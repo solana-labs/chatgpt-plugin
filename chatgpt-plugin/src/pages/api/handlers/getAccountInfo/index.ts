@@ -11,7 +11,9 @@ import { CONNECTION } from "../../constants";
  * @returns
  */
 export function stringifyAnchorObject(obj: any): any {
-  if (obj instanceof BN) {
+  if (!obj) {
+    return {};
+  } else if (obj instanceof BN) {
     return obj.toString();
   } else if (obj instanceof PublicKey) {
     return obj.toString();

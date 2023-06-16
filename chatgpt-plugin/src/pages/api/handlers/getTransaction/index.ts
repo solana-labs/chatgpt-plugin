@@ -9,12 +9,12 @@ import {
   ComputeBudgetInstruction,
   ComputeBudgetInstructionType,
   ComputeBudgetProgram,
-  ParsedInstruction,
-  PartiallyDecodedInstruction,
+  LAMPORTS_PER_SOL,
+  SystemInstruction,
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, decodeInstruction } from "@solana/spl-token";
 
 // Setup Solflare
 import { Client } from "@solflare-wallet/utl-sdk";
@@ -144,8 +144,79 @@ async function parseIx(ix: TransactionInstruction, depth: number): Promise<Instr
     depth,
   };
   if (programAddress === SystemProgram.programId.toBase58()) {
+    parsedIx.programId = "System Program";
+
+    let type = SystemInstruction.decodeInstructionType(ix);
+    switch (type) {
+      case "AdvanceNonceAccount":
+        parsedIx.ixData = stringifyAnchorObject({
+          AdvanceNonceAccount: SystemInstruction.decodeNonceAdvance(ix),
+        });
+        break;
+      case "Allocate":
+        parsedIx.ixData = stringifyAnchorObject({
+          Allocate: SystemInstruction.decodeAllocate(ix),
+        });
+        break;
+      case "AllocateWithSeed":
+        parsedIx.ixData = stringifyAnchorObject({
+          AllocateWithSeed: SystemInstruction.decodeAllocateWithSeed(ix),
+        });
+        break;
+      case "Assign":
+        parsedIx.ixData = stringifyAnchorObject({ Assign: SystemInstruction.decodeAssign(ix) });
+        break;
+      case "AssignWithSeed":
+        parsedIx.ixData = stringifyAnchorObject({
+          AssignWithSeed: SystemInstruction.decodeAssignWithSeed(ix),
+        });
+        break;
+      case "AuthorizeNonceAccount":
+        parsedIx.ixData = stringifyAnchorObject({
+          AuthorizeNonceAccount: SystemInstruction.decodeNonceAuthorize(ix),
+        });
+        break;
+      case "Create":
+        parsedIx.ixData = stringifyAnchorObject({
+          Create: SystemInstruction.decodeCreateAccount(ix),
+        });
+        break;
+      case "CreateWithSeed":
+        parsedIx.ixData = stringifyAnchorObject({
+          CreateWithSeed: SystemInstruction.decodeCreateWithSeed(ix),
+        });
+        break;
+      case "InitializeNonceAccount":
+        parsedIx.ixData = stringifyAnchorObject({
+          InitializeNonceAccount: SystemInstruction.decodeNonceInitialize(ix),
+        });
+        break;
+      case "Transfer":
+        parsedIx.ixData = stringifyAnchorObject({ Transfer: SystemInstruction.decodeTransfer(ix) });
+        break;
+      case "TransferWithSeed":
+        parsedIx.ixData = stringifyAnchorObject({
+          TransferWithSeed: SystemInstruction.decodeTransferWithSeed(ix),
+        });
+        break;
+      case "WithdrawNonceAccount":
+        parsedIx.ixData = stringifyAnchorObject({
+          WithdrawNonceAccount: SystemInstruction.decodeNonceWithdraw(ix),
+        });
+        break;
+      case "UpgradeNonceAccount":
+        break;
+    }
   } else if (programAddress === TOKEN_2022_PROGRAM_ID.toBase58()) {
+    parsedIx.programId = "SPL Token Program";
+    let decoded = decodeInstruction(ix);
+    // TODO(ngundotra): parse mint details
+    parsedIx.ixData = stringifyAnchorObject(decoded);
   } else if (programAddress === TOKEN_PROGRAM_ID.toBase58()) {
+    parsedIx.programId = "SPL Token Program 2022";
+    let decoded = decodeInstruction(ix);
+    // TODO(ngundotra): parse mint details
+    parsedIx.ixData = stringifyAnchorObject(decoded);
   } else if (programAddress === ComputeBudgetProgram.programId.toBase58()) {
     parsedIx.programId = "Compute Budget Program";
     let type: ComputeBudgetInstructionType = ComputeBudgetInstruction.decodeInstructionType(ix);
@@ -226,7 +297,7 @@ function parseSolChanges(
     let post = postBalances[i];
     let solChange = post - pre;
     if (solChange > 0.0000000001) {
-      changes[accounts[i].toString()] = solChange;
+      changes[accounts[i].toString()] = solChange / LAMPORTS_PER_SOL;
     }
   }
   return changes;
