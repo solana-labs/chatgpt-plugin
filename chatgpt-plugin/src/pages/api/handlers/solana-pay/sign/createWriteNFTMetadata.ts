@@ -3,7 +3,7 @@
  */
 import { NextApiRequest } from "next";
 import { CONNECTION } from "../../../constants";
-import { createWriteNFTMetadataTx } from "../../../../../app/on-chain-metadata";
+import { createWriteNFTMetadataTx } from "../../../../../lib/on-chain-metadata";
 import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 
 async function createWriteNFTMetadata(req: NextApiRequest) {
@@ -14,6 +14,4 @@ async function createWriteNFTMetadata(req: NextApiRequest) {
   });
 }
 
-export default makeRespondToSolanaPayGet(
-  makeRespondToSolanaPayPost(createWriteNFTMetadata)
-);
+export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createWriteNFTMetadata));
