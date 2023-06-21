@@ -1,14 +1,20 @@
-import { TokenBalancesByOwnerRequest, TokenPriceBatchedRequest } from "@hellomoon/api";
+import {
+  TokenBalancesByOwnerRequest,
+  TokenPriceBatchedRequest,
+  NftMintPriceByCreatorAvgRequest,
+  CollectionMintsRequest,
+} from "@hellomoon/api";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import configConstants, { CONNECTION, HELLOMOON_CLIENT } from "../../constants";
 import { PublicKey } from "@solana/web3.js";
+import { readApiGetAssetsByOwner } from "../getAssetsByOwner";
 configConstants();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function getTokenTotal(address: string) {
   let tokenInfos = await HELLOMOON_CLIENT.send(
     new TokenBalancesByOwnerRequest({
-      ownerAccount: req.body.address,
+      ownerAccount: address,
     }),
   );
 
@@ -48,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   let priceData = allData.slice(mints.length);
 
-  let total = 0;
+  let tokenTotal = 0;
   for (const mintPriceData of priceData) {
     for (const price of (mintPriceData as any).data) {
       if (price.price) {
@@ -56,11 +62,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log({ mint: price.mints, decimal });
         mintPrice[price.mints] = price.price / 1e6;
         mintVolume[price.mints] = price.volume;
-        total += (mintPrice[price.mints] * mintAmount[price.mints]) / Math.pow(10, decimal);
+        tokenTotal += (mintPrice[price.mints] * mintAmount[price.mints]) / Math.pow(10, decimal);
       }
     }
   }
-  mintPrice["total"] = total;
+  return tokenTotal;
+}
 
-  res.status(200).json({ total });
+async function getNFTTotal(address: string) {
+  let assets = ((await readApiGetAssetsByOwner(address, 1, 100)) as any).items;
+  assets = assets.filter((asset: any) => asset.grouping.length > 0);
+
+  let groupings: Record<string, number> = {};
+  for (const asset of assets) {
+    if (asset.grouping.length === 0) {
+      continue;
+    }
+    let grouping = asset.grouping[0];
+    let collection = grouping.group_value;
+    groupings[collection] = (groupings[collection] || 0) + 1;
+  }
+
+  let assetIds = assets.map((asset: any) => asset.id);
+  let nftPricePromises = assetIds.map((id: string) => {
+    return HELLOMOON_CLIENT.send(
+      new NftMintPriceByCreatorAvgRequest({
+        nftMint: id,
+      }),
+    ).then(price => price.data[0]?.avg_usd_price ?? 0);
+  });
+  let prices = await Promise.all(nftPricePromises);
+
+  let nftTotal = prices.reduce((a, b) => a + b, 0);
+  return nftTotal;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  let totals = Promise.all([getTokenTotal(req.body.address), getNFTTotal(req.body.address)]);
+  let [tokenTotal, nftTotal] = await totals;
+  res.status(200).json({ tokenTotal, nftTotal, total: tokenTotal + nftTotal });
 }
