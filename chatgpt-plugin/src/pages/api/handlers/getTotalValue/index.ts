@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   let mints: string[] = [];
   let mintAmount: Record<string, number> = {};
-  for (const info of tokenInfos) {
+  for (const info of tokenInfos as any) {
     if (info.amount !== "0") {
       mints.push(info.mint);
       mintAmount[info.mint] = Number.parseInt(info.amount);
