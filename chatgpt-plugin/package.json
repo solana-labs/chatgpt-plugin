@@ -11,6 +11,7 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
     "@headlessui/react": "^1.7.15",
+    "@hellomoon/api": "^1.16.7",
     "@heroicons/react": "^2.0.18",
     "@metaplex-foundation/js": "^0.19.3",
     "@solana/pay": "^0.2.5",
