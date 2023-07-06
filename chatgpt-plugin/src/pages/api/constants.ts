@@ -2,6 +2,7 @@ import express from "express";
 
 import { Connection } from "@solana/web3.js";
 import { HyperspaceClient } from "hyperspace-client-js";
+import { RestClient } from "@hellomoon/api";
 
 export const APP = express();
 export const PORT = process.env.PORT || 3333;
@@ -32,6 +33,7 @@ export const TX_DESCRIPTIONS: Record<TransactionEndpoints, string> = {
 export let HELIUS_URL: string;
 export let SELF_URL: string;
 export let HYPERSPACE_CLIENT: HyperspaceClient;
+export let HELLOMOON_CLIENT: RestClient;
 
 export default function index() {
   HELIUS_URL = `https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`;
@@ -42,4 +44,6 @@ export default function index() {
   }
 
   HYPERSPACE_CLIENT = new HyperspaceClient(process.env.HYPERSPACE_API_KEY as string);
+
+  HELLOMOON_CLIENT = new RestClient(process.env.HELLOMOON_API_KEY as string);
 }
