@@ -208,12 +208,12 @@ async function parseIx(ix: TransactionInstruction, depth: number): Promise<Instr
         break;
     }
   } else if (programAddress === TOKEN_2022_PROGRAM_ID.toBase58()) {
-    parsedIx.programId = "SPL Token Program";
+    parsedIx.programId = "SPL Token Program 2022";
     let decoded = decodeInstruction(ix);
     // TODO(ngundotra): parse mint details
     parsedIx.ixData = stringifyAnchorObject(decoded);
   } else if (programAddress === TOKEN_PROGRAM_ID.toBase58()) {
-    parsedIx.programId = "SPL Token Program 2022";
+    parsedIx.programId = "SPL Token Program";
     let decoded = decodeInstruction(ix);
     // TODO(ngundotra): parse mint details
     parsedIx.ixData = stringifyAnchorObject(decoded);
