@@ -3,7 +3,7 @@
  */
 import { NextApiRequest } from "next";
 
-import { createCloseNFTMetadataTx } from "../../../../../lib/on-chain-metadata";
+import { createCloseNFTMetadataTx } from "@/lib/on-chain-metadata";
 import { CONNECTION } from "../../../constants";
 import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 

@@ -11,10 +11,7 @@ configConstants();
 import { makeRespondToSolanaPayPost, makeRespondToSolanaPayGet } from ".";
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 
-import {
-  Hyperspace,
-  hyperspaceIdl,
-} from "../../../../../app/hyperspace/idl/hyperspace";
+import { Hyperspace, hyperspaceIdl } from "@/lib/hyperspace/idl/hyperspace";
 import {
   Keypair,
   LAMPORTS_PER_SOL,
@@ -33,20 +30,15 @@ import {
   getHyperspaceProgramAsSigner,
   getHyperspaceTradeState,
   getMetadata,
-} from "@/app/hyperspace/account";
+} from "@/lib/hyperspace/account";
 import { TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
 import {
   Metadata,
   PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
 } from "@metaplex-foundation/mpl-token-metadata";
-import {
-  HYPERSPACE_ID,
-  HYPERSPACE_MARKETPLACE_INSTANCE,
-} from "@/app/hyperspace/constants";
+import { HYPERSPACE_ID, HYPERSPACE_MARKETPLACE_INSTANCE } from "@/lib/hyperspace/constants";
 
-const AUTH_PROGRAM_ID = new PublicKey(
-  "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg"
-);
+const AUTH_PROGRAM_ID = new PublicKey("auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg");
 
 // async function hyperspaceCreateListTx(
 //   seller: string,
@@ -78,7 +70,7 @@ export const getPriceWithMantissa = async (
   price: number,
   mint: PublicKey,
   walletKeyPair: any,
-  anchorProgram: Program<Hyperspace>
+  anchorProgram: Program<Hyperspace>,
 ): Promise<number> => {
   // // const token = new Token(
   // //   anchorProgram.provider.connection,
@@ -109,7 +101,7 @@ async function createTradeStateInstruction(
   broker: PublicKey,
   tokenAccount: PublicKey,
   tokenMint: PublicKey,
-  tradeStateAddress: PublicKey
+  tradeStateAddress: PublicKey,
 ): Promise<TransactionInstruction> {
   console.log(`Create instruction for creating trade state with address ${tradeStateAddress}
       for ${user.toBase58()} (broker: ${broker.toBase58()}, basis points: ${brokerBasisPoints})
@@ -132,11 +124,9 @@ async function createTradeStateInstruction(
         systemProgram: SystemProgram.programId,
         clock: SYSVAR_CLOCK_PUBKEY,
       },
-    }
+    },
   );
-  instruction.keys
-    .filter((k) => k.pubkey.equals(user))
-    .map((k) => (k.isSigner = true));
+  instruction.keys.filter(k => k.pubkey.equals(user)).map(k => (k.isSigner = true));
   return instruction;
 }
 
@@ -149,10 +139,10 @@ async function helper(
   // We don't charge for creating this
   brokerBasisPoints: number = 0,
   // This only matters when you cross
-  royaltyBasisPoints: number = 0
+  royaltyBasisPoints: number = 0,
 ) {
   const tokenSizeAdjusted = new BN(
-    await getPriceWithMantissa(1, mintPublicKey, seller, anchorProgram)
+    await getPriceWithMantissa(1, mintPublicKey, seller, anchorProgram),
   );
 
   const tokenAccountKey = (await getAtaForMint(mintPublicKey, seller))[0];
@@ -160,22 +150,20 @@ async function helper(
   // You should check that ATA exists
   let instructions: TransactionInstruction[] = [];
 
-  const [programAsSigner, programAsSignerBump] =
-    await getHyperspaceProgramAsSigner();
+  const [programAsSigner, programAsSignerBump] = await getHyperspaceProgramAsSigner();
 
   const [tradeState, tradeBump] = await getHyperspaceTradeState(
     false,
     seller,
     tokenAccountKey,
     mintPublicKey,
-    tokenSizeAdjusted
+    tokenSizeAdjusted,
   );
 
-  const tradeStateAccount =
-    await anchorProgram.provider.connection.getAccountInfo(
-      tradeState,
-      "confirmed"
-    );
+  const tradeStateAccount = await anchorProgram.provider.connection.getAccountInfo(
+    tradeState,
+    "confirmed",
+  );
 
   if (!tradeStateAccount) {
     const initTradeStateInstruction = await createTradeStateInstruction(
@@ -190,7 +178,7 @@ async function helper(
       sellerBrokerKey,
       tokenAccountKey,
       mintPublicKey,
-      tradeState
+      tradeState,
     );
     instructions.push(initTradeStateInstruction);
   }
@@ -203,20 +191,18 @@ async function helper(
 
   const metadataObj = await anchorProgram.provider.connection.getAccountInfo(
     metadataAccount,
-    "confirmed"
+    "confirmed",
   );
 
   if (!metadataObj) {
-    throw Error(
-      "NFT does not have a metadata account, it may have been burnt."
-    );
+    throw Error("NFT does not have a metadata account, it may have been burnt.");
   }
   const metadataParsed = Metadata.deserialize(metadataObj.data)[0];
 
   const signers: Keypair[] = [];
 
   let marketplaceObj = await anchorProgram.account.hyperspace.fetch(
-    HYPERSPACE_MARKETPLACE_INSTANCE
+    HYPERSPACE_MARKETPLACE_INSTANCE,
   );
 
   const sellInstruction = await anchorProgram.instruction.sell(
@@ -251,22 +237,14 @@ async function helper(
         clock: SYSVAR_CLOCK_PUBKEY,
       },
       signers,
-    }
+    },
   );
   instructions.push(sellInstruction);
   return instructions;
 }
 
-async function hyperspaceCreateListTx(
-  seller: string,
-  token: string,
-  price: number
-) {
-  let provider = new AnchorProvider(
-    CONNECTION,
-    new NodeWallet(Keypair.generate()),
-    {}
-  );
+async function hyperspaceCreateListTx(seller: string, token: string, price: number) {
+  let provider = new AnchorProvider(CONNECTION, new NodeWallet(Keypair.generate()), {});
   let program = new Program(hyperspaceIdl, HYPERSPACE_ID, provider);
   const sellerKey = new PublicKey(seller);
 
@@ -285,7 +263,7 @@ async function hyperspaceCreateListTx(
     sellerKey,
     mint,
     SystemProgram.programId,
-    new BN(price * LAMPORTS_PER_SOL)
+    new BN(price * LAMPORTS_PER_SOL),
   );
 
   let tx = new Transaction();
@@ -295,9 +273,7 @@ async function hyperspaceCreateListTx(
   tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
   tx.feePayer = sellerKey;
 
-  const txBytes = tx
-    .serialize({ requireAllSignatures: false })
-    .toString("base64");
+  const txBytes = tx.serialize({ requireAllSignatures: false }).toString("base64");
 
   return {
     transaction: txBytes,
@@ -311,10 +287,8 @@ export async function createListNFT(req: NextApiRequest) {
   return await hyperspaceCreateListTx(
     seller as string,
     token as string,
-    Number.parseFloat(price as string)
+    Number.parseFloat(price as string),
   );
 }
 
-export default makeRespondToSolanaPayGet(
-  makeRespondToSolanaPayPost(createListNFT)
-);
+export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createListNFT));
