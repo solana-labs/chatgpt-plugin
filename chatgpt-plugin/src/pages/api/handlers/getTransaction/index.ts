@@ -6,6 +6,7 @@ import * as anchor from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { stringifyAnchorObject } from "../getAccountInfo";
 import {
+  AccountMeta,
   ComputeBudgetInstruction,
   ComputeBudgetInstructionType,
   ComputeBudgetProgram,
@@ -14,7 +15,13 @@ import {
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, decodeInstruction } from "@solana/spl-token";
+import {
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  decodeInstruction,
+  TokenInstruction,
+} from "@solana/spl-token";
+import { u8 } from "@solana/buffer-layout";
 
 // Setup Solflare
 import { Client } from "@solflare-wallet/utl-sdk";
@@ -209,14 +216,12 @@ async function parseIx(ix: TransactionInstruction, depth: number): Promise<Instr
     }
   } else if (programAddress === TOKEN_2022_PROGRAM_ID.toBase58()) {
     parsedIx.programId = "SPL Token Program 2022";
-    let decoded = decodeInstruction(ix);
-    // TODO(ngundotra): parse mint details
-    parsedIx.ixData = stringifyAnchorObject(decoded);
+
+    parsedIx.ixData = stringifyAnchorObject(await parseTokenInstruction(ix));
   } else if (programAddress === TOKEN_PROGRAM_ID.toBase58()) {
     parsedIx.programId = "SPL Token Program";
-    let decoded = decodeInstruction(ix);
-    // TODO(ngundotra): parse mint details
-    parsedIx.ixData = stringifyAnchorObject(decoded);
+
+    parsedIx.ixData = stringifyAnchorObject(await parseTokenInstruction(ix));
   } else if (programAddress === ComputeBudgetProgram.programId.toBase58()) {
     parsedIx.programId = "Compute Budget Program";
     let type: ComputeBudgetInstructionType = ComputeBudgetInstruction.decodeInstructionType(ix);
@@ -252,6 +257,58 @@ async function parseIx(ix: TransactionInstruction, depth: number): Promise<Instr
     });
   }
   return parsedIx;
+}
+
+/**
+ * Flattens `keys` to just be the name of the account and the address
+ * Extends `mint` addresses with the mint name (e.g. "(USDC)")
+ */
+async function parseTokenInstruction(ix: TransactionInstruction): Promise<Record<string, any>> {
+  let ixTypeByte = u8().decode(ix.data.slice(0, 1));
+  let ixName = TokenInstruction[ixTypeByte];
+  let decoded: Record<string, any> = {};
+  let decodedIx = decodeInstruction(ix);
+
+  let keys: Record<string, string> = {};
+  for (const keyName of Object.keys(decodedIx.keys)) {
+    const meta = (decodedIx.keys as Record<string, AccountMeta>)[keyName];
+    if (keyName === "multiSigners") {
+      continue;
+    }
+    let address = meta.pubkey.toBase58();
+
+    if (keyName === "mint") {
+      let mintData = await utl.fetchMint(meta.pubkey);
+      address = `${address} (${mintData.symbol})`;
+    }
+    keys[keyName] = address;
+  }
+  // @ts-ignore
+  decodedIx.keys = keys;
+
+  if (decodedIx.data && "amount" in decodedIx.data) {
+    let amount: anchor.BN;
+    if (typeof decodedIx.data.amount === "bigint") {
+      amount = new anchor.BN(decodedIx.data.amount.toString());
+    } else {
+      amount = new anchor.BN(decodedIx.data.amount);
+    }
+
+    // Todo(ngundotra): add support for decimals
+    if ("decimals" in decodedIx.data) {
+      let decimals = decodedIx.data.decimals;
+      amount = amount.div(new anchor.BN(10).pow(new anchor.BN(decimals)));
+
+      // @ts-ignore
+      delete decodedIx.data["decimals"];
+    }
+
+    // @ts-ignore
+    decodedIx.data.amount = amount;
+  }
+
+  decoded[ixName] = decodedIx;
+  return decoded;
 }
 
 async function parseTokenChanges(

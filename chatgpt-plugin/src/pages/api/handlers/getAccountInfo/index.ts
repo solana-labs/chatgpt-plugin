@@ -17,9 +17,8 @@ export function stringifyAnchorObject(obj: any): any {
     return obj.toString();
   } else if (obj instanceof PublicKey) {
     return obj.toString();
-  } else if (obj.constructor === BigInt) {
+  } else if (typeof obj === "bigint") {
     let bigInt = obj as BigInt;
-    console.log("BigInt!");
     return bigInt.toString();
   }
 
