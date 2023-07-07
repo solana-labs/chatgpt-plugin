@@ -89,86 +89,102 @@ export const features: Array<Endpoint> = [
     ),
   },
   {
-    label: "Buy an NFT (SolanaPay)",
+    label: "Calculate wallet value",
     description: (
       <p>
-        {`Example: "Can you help me transfer 1 EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v to `}
-        <i>DESTINATION</i>
+        {`Example: "What is the value of `}
+        <i>MY-ADDRESS</i>
         {` ?"`}
-        <br />
-        <br />
-        This will generate a QR code that you can scan from within your mobile wallet to send 1 USDC
-        (mint address EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v) from your wallet to a
-        destination wallet. See the{" "}
-        <Link
-          href={
-            "https://github.com/solana-labs/chatgpt-plugin/blob/examples-langchain/DISCLAIMER.md"
-          }
-          className="legal"
-        >
-          Disclaimer
-        </Link>
-        {" and "}
-        <Link href="https://solanapay.com/tos" className="legal">
-          Terms of Service
-        </Link>
-        {"."}
+        <br /> <br />
+        {`Wallet value is calculated by estimating the value of all tokens and NFTs owned by the wallet. Please note that these values are in USD and are subject to change due to market fluctuations. Price estimates are provided by `}
+        <u>
+          <Link href="https://hyperspace.xyz">{`HelloMoon's`}</Link>
+        </u>
+        {` API.`}
       </p>
     ),
   },
-  {
-    label: "Transfer Sol (SolanaPay)",
-    description: (
-      <p>
-        {`Example: "Can you help me transfer 1 SOL to `}
-        <i>DESTINATION</i>
-        {` ?"`}
-        <br />
-        <br />
-        This will generate a QR code that you can scan from within your mobile wallet to send 1 Sol
-        from your wallet to a destination wallet address. See the{" "}
-        <Link
-          href={
-            "https://github.com/solana-labs/chatgpt-plugin/blob/examples-langchain/DISCLAIMER.md"
-          }
-          className="legal"
-        >
-          Disclaimer
-        </Link>
-        {" and "}
-        <Link href="https://solanapay.com/tos" className="legal">
-          Terms of Service
-        </Link>
-        {"."}
-      </p>
-    ),
-  },
-  {
-    label: "Transfer a token (SolanaPay)",
-    description: (
-      <p>
-        {`Example: "Can you help me transfer 1 EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v to `}
-        <i>DESTINATION</i>
-        {` ?"`}
-        <br />
-        <br />
-        This will generate a QR code that you can scan from within your mobile wallet to send 1 USDC
-        (mint address EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v) from your wallet to a
-        destination wallet. See the{" "}
-        <Link
-          href={
-            "https://github.com/solana-labs/chatgpt-plugin/blob/examples-langchain/DISCLAIMER.md"
-          }
-          className="legal"
-        >
-          Disclaimer
-        </Link>
-        {" and "}
-        <Link href="https://solanapay.com/tos" className="legal">
-          Terms of Service
-        </Link>
-        {"."}
-      </p>
-    ),
-  },
+  // {
+  //   label: "Buy an NFT (SolanaPay)",
+  //   description: (
+  //     <p>
+  //       {`Example: "Can you help me transfer 1 EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v to `}
+  //       <i>DESTINATION</i>
+  //       {` ?"`}
+  //       <br />
+  //       <br />
+  //       This will generate a QR code that you can scan from within your mobile wallet to send 1 USDC
+  //       (mint address EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v) from your wallet to a
+  //       destination wallet. See the{" "}
+  //       <Link
+  //         href={
+  //           "https://github.com/solana-labs/chatgpt-plugin/blob/examples-langchain/DISCLAIMER.md"
+  //         }
+  //         className="legal"
+  //       >
+  //         Disclaimer
+  //       </Link>
+  //       {" and "}
+  //       <Link href="https://solanapay.com/tos" className="legal">
+  //         Terms of Service
+  //       </Link>
+  //       {"."}
+  //     </p>
+  //   ),
+  // },
+  // {
+  //   label: "Transfer Sol (SolanaPay)",
+  //   description: (
+  //     <p>
+  //       {`Example: "Can you help me transfer 1 SOL to `}
+  //       <i>DESTINATION</i>
+  //       {` ?"`}
+  //       <br />
+  //       <br />
+  //       This will generate a QR code that you can scan from within your mobile wallet to send 1 Sol
+  //       from your wallet to a destination wallet address. See the{" "}
+  //       <Link
+  //         href={
+  //           "https://github.com/solana-labs/chatgpt-plugin/blob/examples-langchain/DISCLAIMER.md"
+  //         }
+  //         className="legal"
+  //       >
+  //         Disclaimer
+  //       </Link>
+  //       {" and "}
+  //       <Link href="https://solanapay.com/tos" className="legal">
+  //         Terms of Service
+  //       </Link>
+  //       {"."}
+  //     </p>
+  //   ),
+  // },
+  // {
+  //   label: "Transfer a token (SolanaPay)",
+  //   description: (
+  //     <p>
+  //       {`Example: "Can you help me transfer 1 EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v to `}
+  //       <i>DESTINATION</i>
+  //       {` ?"`}
+  //       <br />
+  //       <br />
+  //       This will generate a QR code that you can scan from within your mobile wallet to send 1 USDC
+  //       (mint address EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v) from your wallet to a
+  //       destination wallet. See the{" "}
+  //       <Link
+  //         href={
+  //           "https://github.com/solana-labs/chatgpt-plugin/blob/examples-langchain/DISCLAIMER.md"
+  //         }
+  //         className="legal"
+  //       >
+  //         Disclaimer
+  //       </Link>
+  //       {" and "}
+  //       <Link href="https://solanapay.com/tos" className="legal">
+  //         Terms of Service
+  //       </Link>
+  //       {"."}
+  //     </p>
+  //   ),
+  // },
 ];
