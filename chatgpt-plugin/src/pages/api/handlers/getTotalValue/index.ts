@@ -66,7 +66,6 @@ async function getTokenTotal(address: string) {
     for (const price of (mintPriceData as any).data) {
       if (price.price) {
         let decimal = mintDecimals[price.mints];
-        console.log({ mint: price.mints, decimal });
         mintPrice[price.mints] = price.price / 1e6;
         mintVolume[price.mints] = price.volume;
         tokenTotal += (mintPrice[price.mints] * mintAmount[price.mints]) / Math.pow(10, decimal);

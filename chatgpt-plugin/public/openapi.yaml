@@ -218,54 +218,6 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /api/handlers/tx-link/createTransferSol:
-    post:
-      summary: Allows the user to transfer Sol to another account
-      operationId: create_transfer_sol_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/createTransferSolRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-  /api/handlers/tx-link/createBuyNFT:
-    post:
-      summary: Accepts accounts needed to buy the NFT represented by the token
-      operationId: create_buy_nft_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NFTExchangeTransactionRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
   /api/handlers/getListedCollectionNFTs:
     post:
       summary: Returns the listed NFTs in a collection available to purchase
@@ -839,36 +791,6 @@ components:
           type: string
         floor_price:
           type: number
-    NFTExchangeTransactionRequest:
-      type: object
-      properties:
-        token:
-          type: string
-        price:
-          type: number
-    createTransferTokenRequest:
-      type: object
-      properties:
-        amount:
-          type: string
-        destination:
-          type: string
-        mint:
-          type: string
-    createTransferSolRequest:
-      type: object
-      properties:
-        amount:
-          type: string
-        destination:
-          type: string
-    transactionResponse:
-      type: object
-      properties:
-        qrCode:
-          type: string
-        disclaimer:
-          type: string
     getCollectionsByNameRequest:
       type: object
       properties:
