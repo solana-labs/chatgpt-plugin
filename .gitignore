@@ -1,4 +1,12 @@
+.DS_Store
 .env
 node_modules/
 yarn*
 tmp*
+
+# Debugging tools
+scripts/collection.ts
+scripts/sharp.ts
+
+langchain_examples/python/__pycache__
+*json
