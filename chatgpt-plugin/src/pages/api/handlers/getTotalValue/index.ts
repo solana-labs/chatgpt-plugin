@@ -2,16 +2,16 @@ import {
   TokenBalancesByOwnerRequest,
   TokenPriceBatchedRequest,
   NftMintPriceByCreatorAvgRequest,
-  CollectionMintsRequest,
 } from "@hellomoon/api";
+import { PublicKey, Connection } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import configConstants, { CONNECTION, HELLOMOON_CLIENT } from "../../constants";
-import { PublicKey } from "@solana/web3.js";
 import { readApiGetAssetsByOwner } from "../getAssetsByOwner";
+import configConstants, { CONNECTION, HELLOMOON_CLIENT } from "../../constants";
 configConstants();
 
 async function getTokenTotal(address: string) {
+  let connection = new Connection(`https://rpc.hellomoon.io/${process.env.HELLOMOON_API_KEY}`);
   let tokenInfos = await HELLOMOON_CLIENT.send(
     new TokenBalancesByOwnerRequest({
       ownerAccount: address,
@@ -40,12 +40,19 @@ async function getTokenTotal(address: string) {
         new TokenPriceBatchedRequest({ mints: mints.slice(counter, counter + batchSize) }),
       ),
     );
+
     for (let i = counter; i < Math.min(counter + batchSize, mints.length); i++) {
-      decimalPromises.push(CONNECTION.getParsedAccountInfo(new PublicKey(mints[i])));
+      decimalPromises.push(connection.getParsedAccountInfo(new PublicKey(mints[i])));
     }
     counter += batchSize;
   }
-  let allData = await Promise.all([...decimalPromises, ...pricePromises]);
+  let allData: any[] = [];
+  try {
+    allData = await Promise.all([...decimalPromises, ...pricePromises]);
+  } catch (e) {
+    console.error("Failed to getParsedAccountInfo:", e);
+    throw e;
+  }
   let decimalData = allData.slice(0, mints.length);
   let mintDecimals: Record<string, number> = {};
   decimalData.forEach((accountInfo, index) => {
@@ -93,12 +100,12 @@ async function getNFTTotal(address: string) {
   });
   let prices = await Promise.all(nftPricePromises);
 
-  let nftTotal = prices.reduce((a, b) => a + b, 0);
+  let nftTotal: number = prices.reduce((a, b) => a + b, 0);
   return nftTotal;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  let totals = Promise.all([getTokenTotal(req.body.address), getNFTTotal(req.body.address)]);
-  let [tokenTotal, nftTotal] = await totals;
+  let totals = await Promise.all([getTokenTotal(req.body.address), getNFTTotal(req.body.address)]);
+  let [tokenTotal, nftTotal] = totals;
   res.status(200).json({ tokenTotal, nftTotal, total: tokenTotal + nftTotal });
 }
