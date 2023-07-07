@@ -119,8 +119,8 @@ paths:
       summary: getTransaction
       description:
         Accepts a transaction signature. Returns the publicly available transaction information and
-        metadata. High level summaries based on instruction data should be provided to users unless
-        otherwise specified.
+        metadata. Only high level summaries based on instruction data should be provided to users
+        unless otherwise specified.
       operationId: query_transaction
       requestBody:
         content:
@@ -610,13 +610,37 @@ components:
       properties:
         signature:
           type: string
+        devMode:
+          type: boolean
     # TODO: verify this actually describes the response
     getTransactionResponse:
       type: object
       properties:
-        slot:
-          type: integer
-          format: int64
+        feePayer:
+          type: string
+        success:
+          type: boolean
+        timestamp:
+          type: string
+        tokenBalanceChanges:
+          type: object
+        solBalanceChanges:
+          type: object
+        instructions:
+          type: array
+          items:
+            type: object
+            properties:
+              keys:
+                type: array
+                items:
+                  type: string
+              programId:
+                type: string
+              ixData:
+                oneOf:
+                  - type: string
+                  - type: object
         transaction:
           oneOf:
             - type: object
@@ -624,12 +648,20 @@ components:
               items:
                 type: string
               minItems: 2
-        blockTime:
+        computeUnitsConsumed:
           type: integer
-          format: int64
           nullable: true
-        meta:
-          $ref: "#/components/schemas/Meta"
+        txFeeInLamports:
+          type: integer
+          nullable: true
+        logs:
+          type: array
+          items:
+            type: string
+          nullabel: true
+        txVersion:
+          type: string
+          nullable: true
     Meta:
       type: object
       properties:

@@ -13,6 +13,7 @@ import {
   LAMPORTS_PER_SOL,
   SystemInstruction,
   SystemProgram,
+  TransactionError,
   TransactionInstruction,
 } from "@solana/web3.js";
 import {
@@ -39,15 +40,20 @@ type Instruction = {
 let PROGRAM_CACHE = new Map<string, anchor.Program | null>();
 
 type ParsedTxResponse = {
-  computeUnitsConsumed: number;
-  feePayer: string;
-  txFeeInLamports: number;
-  txVersion: string;
-  // TODO(ngundotra): I'm pretty sure amount needs to be a string bc u57 overflow...
+  // TODO(ngundotra): I'm pretty sure amount needs to be a string bc u57 overflow, but this is what SPL Token uses
   tokenBalanceChanges: Record<string, { mint: string; amount: number }>;
   solBalanceChanges: Record<string, number>;
-  logs: string[];
   instructions: Instruction[];
+  success: boolean;
+  timestamp: string;
+  feePayer: string;
+  err?: TransactionError;
+  // Dev Mode Only params
+  computeUnitsConsumed?: number;
+  txFeeInLamports?: number;
+  txVersion?: string;
+  slot?: number;
+  logs?: string[];
 };
 
 async function getAnchorProgram(programId: string) {
@@ -279,7 +285,7 @@ async function parseTokenInstruction(ix: TransactionInstruction): Promise<Record
 
     if (keyName === "mint") {
       let mintData = await utl.fetchMint(meta.pubkey);
-      address = `${address} (${mintData.symbol})`;
+      address = `${mintData.symbol}`;
     }
     keys[keyName] = address;
   }
@@ -335,7 +341,9 @@ async function parseTokenChanges(
     let pre = preBalances[i];
     let post = postBalances[i];
     let tokenChange = (post.uiTokenAmount.uiAmount ?? 0) - (pre.uiTokenAmount.uiAmount ?? 0);
-    changes[pre.owner!] = { mint: mintMap[pre.mint] ?? pre.mint, amount: tokenChange };
+    if (tokenChange !== 0) {
+      changes[pre.owner!] = { mint: mintMap[pre.mint] ?? pre.mint, amount: tokenChange };
+    }
   }
   return changes;
 }
@@ -376,6 +384,7 @@ function parseLogs(logs: string[]): { programId: string; depth: number }[] {
 // TODO(ngundotra): add support for System program + SPL programs
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const signature = req.body.signature;
+  const devMode = req.body.devMode ?? false;
   const transaction = await CONNECTION.getTransaction(signature, {
     maxSupportedTransactionVersion: 2,
   });
@@ -462,16 +471,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const feePayer = transaction?.transaction.message.staticAccountKeys[0]!.toBase58();
 
+  let timestamp: Date | undefined;
+  if (transaction?.blockTime) {
+    timestamp = new Date();
+    timestamp.setTime(transaction?.blockTime! * 1000);
+  }
+
   let response: ParsedTxResponse = {
-    txFeeInLamports: transaction?.meta?.fee!,
-    computeUnitsConsumed: transaction?.meta?.computeUnitsConsumed!,
-    txVersion: JSON.stringify(transaction?.version) ?? "legacy",
-    logs: transaction?.meta?.logMessages ?? [],
+    err: transaction?.meta?.err ?? undefined,
     feePayer: feePayer!,
     instructions,
     tokenBalanceChanges: tokenBalanceChanges!,
     solBalanceChanges: solChanges!,
+    success: transaction?.meta?.err === null,
+    timestamp: timestamp?.toISOString() ?? "unknown",
   };
+  if (devMode) {
+    response = {
+      ...response,
+      computeUnitsConsumed: transaction?.meta?.computeUnitsConsumed!,
+      txFeeInLamports: transaction?.meta?.fee!,
+      txVersion: transaction?.version?.toString() ?? "legacy",
+      logs: transaction?.meta?.logMessages ?? [],
+      slot: transaction?.slot!,
+    };
+  }
 
   res.status(200).send(JSON.stringify(response));
 }
