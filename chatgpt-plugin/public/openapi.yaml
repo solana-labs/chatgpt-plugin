@@ -120,7 +120,7 @@ paths:
       description:
         Accepts a transaction signature. Returns the publicly available transaction information and
         metadata. Only high level summaries based on instruction data should be provided to users
-        unless otherwise specified.
+        unless otherwise specified. Logs, compute units, and fees are available in devMode.
       operationId: query_transaction
       requestBody:
         content:
