@@ -314,6 +314,32 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
+  /api/handlers/getTotalValue:
+    post:
+      summary:
+        Calculates the total value of a the address's holdings in USD, with breakdown by NFTs and
+        tokens.
+      operationId: query_total_value
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/getTotalValueRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getTotalValueResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
 components:
   schemas:
     getAccountInfoRequest:
@@ -373,7 +399,6 @@ components:
           properties:
             beforeSignature:
               type: string
-
         signatures:
           type: array
           items:
@@ -860,7 +885,6 @@ components:
         pageSize:
           type: number
           nullable: true
-
     getCollectionNFTsByNameResponse:
       type: object
       properties:
@@ -905,6 +929,20 @@ components:
           type: string
         marketplace:
           type: string
+    getTotalValueRequest:
+      type: object
+      properties:
+        address:
+          type: string
+    getTotalValueResponse:
+      type: object
+      properties:
+        total:
+          type: number
+        nftTotal:
+          type: number
+        tokenTotal:
+          type: number
   securitySchemes:
     HTTPBearer:
       type: http
