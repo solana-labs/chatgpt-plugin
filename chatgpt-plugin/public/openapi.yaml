@@ -194,30 +194,6 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
-  /api/handlers/createTransferToken:
-    post:
-      summary: Allows the user to transfer a token to ownership of another account
-      operationId: create_transfer_token_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/createTransferTokenRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
   /api/handlers/getListedCollectionNFTs:
     post:
       summary: Returns the listed NFTs in a collection available to purchase
