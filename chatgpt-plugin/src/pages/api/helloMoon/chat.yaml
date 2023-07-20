@@ -1,0 +1,142 @@
+openapi: 3.1.0
+info:
+  title: HelloMoon API
+  description: An API for querying information about protocols built on Solana
+  version: 1.0.0
+servers:
+  - url: https://chatgpt.solanalabs.com/api/helloMoon
+paths:
+  /jupiter/summary:
+    post:
+      summary: Shows high-level information related to DeFi protocol Jupiter on Solana
+      description:
+        Shows the volume, number of users, and number of transactions on Jupiter over the past 24
+        hours, 7 days, and 30 days in USD
+      operationId: query_jupiter_summary
+      responses:
+        "200":
+          description: Successful Response
+  /jupiter/swaps:
+    post:
+      summary: Shows swap data on Jupiter protocol by amm
+      description:
+        Breakdown of swapping pair volume weekly on and off of Jupiter weekly. Data goes back 90
+        days. Data can be broken down by AMM if needed. Note that swapPair is the combination of the
+        source and destination symbol. The order will be in alphabetical order. For example, "USDC -
+        wSOL"
+      operationId: query_jupiter_swap_summary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jupiterSwapRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /jupiter/historical:
+    post:
+      summary: Shows the volume, number of users, and number of transactions on Jupiter over time
+      description:
+        Shows the volume, number of users, and number of transactions on Jupiter over time
+      operationId: query_jupiter_historical_summary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jupiterHistoricalRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /jupiter/pairs:
+    post:
+      summary: Shows the volume of swaps for token pairs on Jupiter
+      description:
+        Shows the volume of swaps for token pairs on Jupiter. Note that swapPair is the combination
+        of the source and destination symbol. The order will be in alphabetical order. For example,
+        "USDC - wSOL"
+      operationId: query_jupiter_pair_summary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jupiterPairsRequest"
+      responses:
+        "200":
+          description: Successful Response
+components:
+  schemas:
+    stringComparisonOperator:
+      type: string
+      enum:
+        - "="
+        - "!="
+        - ">"
+        - "<"
+        - ">="
+      nullable: true
+    nullableNumber:
+      type: number
+      nullable: true
+    jupiterSwapRequest:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - "whole market"
+            - "jupiter only"
+            - "per amm"
+          nullable: true
+        ammProgramId:
+          type: string
+          nullable: true
+        swapPair:
+          type: string
+          nullable: true
+        limit:
+          type: number
+          nullable: true
+    jupiterHistoricalRequest:
+      type: object
+      properties:
+        granularity:
+          type: string
+          enum:
+            - "daily"
+            - "weekly"
+            - "monthly"
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+        numTxnsOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        numTxnsValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolumeValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolumeOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        numUsersValue:
+          $ref: "#/components/schemas/nullableNumber"
+        numUsersOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+    jupiterPairsRequest:
+      type: object
+      properties:
+        swapPair:
+          type: string
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolume7DOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        usdVolume30DOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        usdVolume24HrOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        usdVolume7DValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolume30DValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolume24HrValue:
+          $ref: "#/components/schemas/nullableNumber"
