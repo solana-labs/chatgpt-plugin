@@ -38,7 +38,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
   let mapped = CATEGORY_MAP[category as string] as any;
-  console.log("mapped: ", mapped);
   let args = new JupiterPairsBrokenDownWeeklyRequest({
     category: mapped,
     subCategory: ammProgramId,
