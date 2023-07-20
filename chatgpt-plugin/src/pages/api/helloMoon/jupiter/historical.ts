@@ -35,7 +35,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  console.log(numUsers);
   let args = new JupiterHistoricalTradingStatsRequest({
     granularity: ((granularity as string).toLocaleUpperCase() as any) ?? "DAILY",
     limit: limit ?? 10,
