@@ -9,7 +9,7 @@ const VALID_GRANULARITY = ["DAILY", "WEEKLY", "MONTHLY"];
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { granularity, limit } = req.body;
 
-  if (granularity && !VALID_GRANULARITY.includes(granularity)) {
+  if (granularity && !VALID_GRANULARITY.includes((granularity as string).toLocaleUpperCase())) {
     res
       .status(500)
       .send(
@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   console.log(numUsers);
   let args = new JupiterHistoricalTradingStatsRequest({
-    granularity: granularity ?? "DAILY",
+    granularity: ((granularity as string).toLocaleUpperCase() as any) ?? "DAILY",
     limit: limit ?? 10,
     numTxns,
     usdVolume,

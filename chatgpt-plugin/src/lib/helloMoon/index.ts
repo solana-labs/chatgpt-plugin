@@ -1,7 +1,7 @@
-export const VALID_OPERATORS = ["=", "!=", ">", "<", ">=", "!="];
+export const VALID_OPERATORS = ["=", "!=", ">", "<", ">="];
 export type Comparison =
   | {
-      operator: "=" | "!=" | ">" | "<" | ">=" | "!=";
+      operator: "=" | "!=" | ">" | "<" | ">=";
       value: number;
     }
   | undefined;
