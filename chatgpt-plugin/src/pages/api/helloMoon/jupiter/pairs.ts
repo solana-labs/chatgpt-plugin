@@ -5,7 +5,6 @@ import { Comparison, buildComparison } from "@/lib/helloMoon";
 import { JupiterSwapStatsRequest } from "@hellomoon/api";
 configConstants();
 
-const VALID_GRANULARITY = ["DAILY", "WEEKLY", "MONTHLY"];
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { swapPair, limit } = req.body;
 
