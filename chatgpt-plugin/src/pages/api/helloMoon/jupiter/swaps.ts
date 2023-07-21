@@ -3,6 +3,7 @@ import configConstants, { HELLOMOON_CLIENT } from "../../constants";
 
 import { JupiterPairsBrokenDownWeeklyRequest } from "@hellomoon/api";
 import { PublicKey } from "@solana/web3.js";
+import { cleanSwapPair } from "@/lib/helloMoon";
 configConstants();
 
 const VALID_CATEGORY = ["per amm", "whole market", "jupiter only"];
@@ -40,8 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let mapped = CATEGORY_MAP[category as string] as any;
   let args = new JupiterPairsBrokenDownWeeklyRequest({
     category: mapped,
-    subCategory: ammProgramId,
-    swapPair,
+    subCategory: (ammProgramId as string).length ? ammProgramId : undefined,
+    swapPair: swapPair ? cleanSwapPair(swapPair) : undefined,
     limit,
   });
 
