@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     dailyVolume = buildComparison(req.body.usdVolume24HrOperator, req.body.usdVolume24HrValue);
-    weeklyVolume = buildComparison(req.body.usdVolume7DOperator, req.body.usdVolume7DValue, true);
+    weeklyVolume = buildComparison(req.body.usdVolume7DOperator, req.body.usdVolume7DValue);
     monthlyVolume = buildComparison(req.body.usdVolume30DOperator, req.body.usdVolume30DValue);
   } catch (error) {
     res.status(500).send((error as Error).message);
