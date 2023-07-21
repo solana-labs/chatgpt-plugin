@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
-import { Comparison, buildComparison } from "@/lib/helloMoon";
+import { Comparison, buildComparison, cleanSwapPair } from "@/lib/helloMoon";
 
 import { JupiterSwapStatsRequest } from "@hellomoon/api";
 configConstants();
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     dailyVolume = buildComparison(req.body.usdVolume24HrOperator, req.body.usdVolume24HrValue);
-    weeklyVolume = buildComparison(req.body.usdVolume7DOperator, req.body.usdVolume7DValue);
+    weeklyVolume = buildComparison(req.body.usdVolume7DOperator, req.body.usdVolume7DValue, true);
     monthlyVolume = buildComparison(req.body.usdVolume30DOperator, req.body.usdVolume30DValue);
   } catch (error) {
     res.status(500).send((error as Error).message);
@@ -22,12 +22,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   let args = new JupiterSwapStatsRequest({
-    swapPair: swapPair,
+    swapPair: cleanSwapPair(swapPair),
     limit: limit ?? 10,
     usdVolume24Hr: dailyVolume,
     usdVolume7D: weeklyVolume,
     usdVolume30D: monthlyVolume,
   });
+  console.log(args);
 
   let data = await HELLOMOON_CLIENT.send(args)
     .then(result => result.data)

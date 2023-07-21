@@ -21,7 +21,7 @@ export function buildComparison(
   }
 
   const comparison =
-    operator && value
+    operator && value !== undefined
       ? {
           operator,
           value: new Number(value).valueOf(),
@@ -29,4 +29,19 @@ export function buildComparison(
       : undefined;
 
   return comparison as Comparison;
+}
+
+/**
+ * Rewrites a "B - A" pair to "A-B" pair
+ * @param pair
+ */
+export function cleanSwapPair(pair: string) {
+  let cleaned = pair.replaceAll(" ", "");
+  let split = cleaned.split("-");
+  let pairA = split[0];
+  let pairB = split[1];
+  if (pairA < pairB) {
+    return `${pairA} - ${pairB}`;
+  }
+  return `${pairB} - ${pairA}`;
 }
