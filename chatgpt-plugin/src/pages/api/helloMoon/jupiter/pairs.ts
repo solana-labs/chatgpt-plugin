@@ -28,7 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     usdVolume7D: weeklyVolume,
     usdVolume30D: monthlyVolume,
   });
-  console.log(args);
 
   let data = await HELLOMOON_CLIENT.send(args)
     .then(result => result.data)
