@@ -21,6 +21,46 @@ paths:
       responses:
         "200":
           description: Successful Response
+  /defi/programOverlap:
+    post:
+      summary: Shows overlap between users of two different programs
+      description:
+      Program overlap shows the overlap between the users of two protocols. The data will show what percentage of 'aProgramIds' users also use 'bProgramId'
+      operationId: query_program_user_overlap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/programOverlapRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /defi/tokenUsers:
+    post:
+      summary:
+      description:
+      operationId: query_token_users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/tokenUsersRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /defi/tokenStats:
+    post:
+      summary:
+      description:
+      operationId: query_token_stats
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/tokenStatsRequest"
+      responses:
+        "200":
+          description: Successful Response
 components:
   schemas:
     stringComparisonOperator:
@@ -43,6 +83,43 @@ components:
         programId:
           type: string
         day:
+          type: string
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+    programOverlapRequest:
+      type: object
+      properties:
+        aProgramId:
+          type: string
+        bProgramId:
+          type: string
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+    tokenUsersRequest:
+      type: object
+      properties:
+        day:
+          type: string
+          nullable: true
+        mint:
+          type: string
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+    tokenStatsRequest:
+      type: object
+      properties:
+        granularity:
+          type: string
+          enum:
+            - "one_week"
+            - "one_month"
+            - "one_day"
+            - "six_hour"
+            - "one_hour"
+            - "thirty_min"
+          nullable: true
+        mint:
           type: string
           nullable: true
         limit:
