@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let mapped = CATEGORY_MAP[category as string] as any;
   let args = new JupiterPairsBrokenDownWeeklyRequest({
     category: mapped,
-    subCategory: (ammProgramId as string).length ? ammProgramId : undefined,
+    subCategory: !!(ammProgramId as string)?.length ? ammProgramId : undefined,
     swapPair: swapPair ? cleanSwapPair(swapPair) : undefined,
     limit,
   });
