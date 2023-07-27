@@ -40,7 +40,7 @@ async function hyperspaceGetCollectionsByFloorPrice(
       },
       orderBy: {
         field_name: "floor_price",
-        sort_order: orderBy as any,
+        sort_order: orderBy.toLocaleUpperCase() as any,
       },
       paginationInfo: {
         page_size: 512,

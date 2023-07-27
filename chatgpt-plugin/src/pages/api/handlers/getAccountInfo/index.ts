@@ -1,11 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey, Connection, Keypair } from "@solana/web3.js";
-import {
-  Program,
-  AnchorProvider,
-  BorshAccountsCoder,
-  BN,
-} from "@coral-xyz/anchor";
+import { Program, AnchorProvider, BorshAccountsCoder, BN } from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
 import { CONNECTION } from "../../constants";
@@ -16,10 +11,15 @@ import { CONNECTION } from "../../constants";
  * @returns
  */
 export function stringifyAnchorObject(obj: any): any {
-  if (obj instanceof BN) {
+  if (!obj) {
+    return {};
+  } else if (obj instanceof BN) {
     return obj.toString();
   } else if (obj instanceof PublicKey) {
     return obj.toString();
+  } else if (typeof obj === "bigint") {
+    let bigInt = obj as BigInt;
+    return bigInt.toString();
   }
 
   if (typeof obj === "object" && obj !== null) {
@@ -39,7 +39,7 @@ export function stringifyAnchorObject(obj: any): any {
  */
 async function getParsedAccountInfo(
   connection: Connection,
-  accountAddress: PublicKey
+  accountAddress: PublicKey,
 ): Promise<Object> {
   // TODO: copy the explorer code here that manually deserializes a bunch of stuff, like Mango & Pyth
 
@@ -51,7 +51,7 @@ async function getParsedAccountInfo(
         accountInfo.owner,
         new AnchorProvider(connection, new NodeWallet(Keypair.generate()), {
           commitment: "confirmed",
-        })
+        }),
       );
 
       // Search through Anchor IDL for the account type
@@ -60,7 +60,7 @@ async function getParsedAccountInfo(
       const accountDefTmp = program.idl.accounts?.find((accountType: any) =>
         (rawData as Buffer)
           .slice(0, 8)
-          .equals(BorshAccountsCoder.accountDiscriminator(accountType.name))
+          .equals(BorshAccountsCoder.accountDiscriminator(accountType.name)),
       );
 
       // If we found the Anchor IDL type, decode the account state
@@ -68,9 +68,7 @@ async function getParsedAccountInfo(
         const accountDef = accountDefTmp;
 
         // Decode the anchor data & stringify the data
-        const decodedAccountData = stringifyAnchorObject(
-          coder.decode(accountDef.name, rawData)
-        );
+        const decodedAccountData = stringifyAnchorObject(coder.decode(accountDef.name, rawData));
 
         // Inspect the anchor data for fun 🤪
         console.log(decodedAccountData);
@@ -88,10 +86,7 @@ async function getParsedAccountInfo(
   return accountInfo || {};
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method != "POST") {
     res.status(405).send({ message: "Only POST requests allowed" });
     return;

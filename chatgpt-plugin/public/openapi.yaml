@@ -1,7 +1,9 @@
 openapi: 3.0.2
 info:
   title: Retrieval Plugin API
-  description: A retrieval API for querying and filtering documents based on natural language queries and metadata
+  description:
+    A retrieval API for querying and filtering documents based on natural language queries and
+    metadata
   version: 1.0.0
 paths:
   /api/handlers/getAssetsByOwner:
@@ -59,7 +61,9 @@ paths:
   /api/handlers/getTokenAccounts:
     post:
       summary: getTokenAccounts
-      description: Returns the fungible and non-fungible tokens and amounts owned by the address. May show tokens not listed in /getAssetsByOwner
+      description:
+        Returns the fungible and non-fungible tokens and amounts owned by the address. May show
+        tokens not listed in /getAssetsByOwner
       operationId: query_token_accounts
       requestBody:
         content:
@@ -85,7 +89,9 @@ paths:
   /api/handlers/getBalance:
     post:
       summary: getBalance
-      description: Accepts Solana publicKey address. Returns the amount of lamports that the account has available.
+      description:
+        Accepts Solana publicKey address. Returns the amount of lamports that the account has
+        available.
       operationId: query_balance
       requestBody:
         content:
@@ -111,7 +117,10 @@ paths:
   /api/handlers/getTransaction:
     post:
       summary: getTransaction
-      description: Accepts a transaction signature. Returns the publicly available transaction information and metadata
+      description:
+        Accepts a transaction signature. Returns the publicly available transaction information and
+        metadata. Only high level summaries based on instruction data should be provided to users
+        unless otherwise specified. Logs, compute units, and fees are available in devMode.
       operationId: query_transaction
       requestBody:
         content:
@@ -136,7 +145,9 @@ paths:
   /api/handlers/getSignaturesForAddress:
     post:
       summary: getSignaturesForAddress
-      description: Accepts Solana publicKey address. Returns the latest transaction signatures that involve that address
+      description:
+        Accepts Solana publicKey address. Returns the latest transaction signatures that involve
+        that address
       operationId: query_signatures_for_address
       requestBody:
         content:
@@ -175,78 +186,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/getCollectionsByFloorPriceResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-  /api/handlers/createTransferToken:
-    post:
-      summary: Allows the user to transfer a token to ownership of another account
-      operationId: create_transfer_token_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/createTransferTokenRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-  /api/handlers/tx-link/createTransferSol:
-    post:
-      summary: Allows the user to transfer Sol to another account
-      operationId: create_transfer_sol_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/createTransferSolRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
-        "500":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-  /api/handlers/tx-link/createBuyNFT:
-    post:
-      summary: Accepts accounts needed to buy the NFT represented by the token
-      operationId: create_buy_nft_tx
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NFTExchangeTransactionRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transactionResponse"
         "500":
           description: Validation Error
           content:
@@ -295,6 +234,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/getListedCollectionNFTsResponse"
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
+  /api/handlers/getTotalValue:
+    post:
+      summary:
+        Calculates the total value of a the address's holdings in USD, with breakdown by NFTs and
+        tokens.
+      operationId: query_total_value
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/getTotalValueRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getTotalValueResponse"
         "500":
           description: Validation Error
           content:
@@ -362,7 +327,6 @@ components:
           properties:
             beforeSignature:
               type: string
-
         signatures:
           type: array
           items:
@@ -599,13 +563,37 @@ components:
       properties:
         signature:
           type: string
+        devMode:
+          type: boolean
     # TODO: verify this actually describes the response
     getTransactionResponse:
       type: object
       properties:
-        slot:
-          type: integer
-          format: int64
+        feePayer:
+          type: string
+        success:
+          type: boolean
+        timestamp:
+          type: string
+        tokenBalanceChanges:
+          type: object
+        solBalanceChanges:
+          type: object
+        instructions:
+          type: array
+          items:
+            type: object
+            properties:
+              keys:
+                type: array
+                items:
+                  type: string
+              programId:
+                type: string
+              ixData:
+                oneOf:
+                  - type: string
+                  - type: object
         transaction:
           oneOf:
             - type: object
@@ -613,12 +601,20 @@ components:
               items:
                 type: string
               minItems: 2
-        blockTime:
+        computeUnitsConsumed:
           type: integer
-          format: int64
           nullable: true
-        meta:
-          $ref: "#/components/schemas/Meta"
+        txFeeInLamports:
+          type: integer
+          nullable: true
+        logs:
+          type: array
+          items:
+            type: string
+          nullabel: true
+        txVersion:
+          type: string
+          nullable: true
     Meta:
       type: object
       properties:
@@ -771,36 +767,6 @@ components:
           type: string
         floor_price:
           type: number
-    NFTExchangeTransactionRequest:
-      type: object
-      properties:
-        token:
-          type: string
-        price:
-          type: number
-    createTransferTokenRequest:
-      type: object
-      properties:
-        amount:
-          type: string
-        destination:
-          type: string
-        mint:
-          type: string
-    createTransferSolRequest:
-      type: object
-      properties:
-        amount:
-          type: string
-        destination:
-          type: string
-    transactionResponse:
-      type: object
-      properties:
-        qrCode:
-          type: string
-        disclaimer:
-          type: string
     getCollectionsByNameRequest:
       type: object
       properties:
@@ -817,7 +783,6 @@ components:
         pageSize:
           type: number
           nullable: true
-
     getCollectionNFTsByNameResponse:
       type: object
       properties:
@@ -862,6 +827,20 @@ components:
           type: string
         marketplace:
           type: string
+    getTotalValueRequest:
+      type: object
+      properties:
+        address:
+          type: string
+    getTotalValueResponse:
+      type: object
+      properties:
+        total:
+          type: number
+        nftTotal:
+          type: number
+        tokenTotal:
+          type: number
   securitySchemes:
     HTTPBearer:
       type: http

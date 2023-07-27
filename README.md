@@ -72,6 +72,22 @@ Returns the transaction signatures returned in `getSignaturesForAddress` method 
 </details>
 
 
+<details>
+<summary>
+/getTotalValue { address }
+</summary>
+
+Returns the total value of the assets owned by `address`, broken down by NFTs and tokens. Token prices and NFT price estimates are provided by HelloMoon. An example output is provided below
+
+```json
+{
+  "total": "50.00",
+  "nftTotal": "25.00",
+  "tokenTotal": "25.00"
+}
+```
+</details>
+
 ### Endpoints for NFT discovery 
 These endpoints are under development and subject to rapid change. These currently use the [Hyperspace API](https://docs.hyperspace.xyz).
 

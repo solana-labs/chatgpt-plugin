@@ -16,18 +16,14 @@ type ListedNFTResponse = {
 async function hyperspaceGetListedCollectionNFTs(
   projectId: string,
   pageSize: number = 5,
-  priceOrder: string = "DESC"
+  priceOrder: string = "DESC",
 ): Promise<ListedNFTResponse> {
   let listedNFTs: NFTListing[] = [];
   let hasMore = true;
   let pageNumber = 1;
   let pagesScraped = 0;
   const PAGE_SCRAPE_LIMIT = 10;
-  while (
-    listedNFTs.length < pageSize &&
-    hasMore &&
-    pagesScraped < PAGE_SCRAPE_LIMIT
-  ) {
+  while (listedNFTs.length < pageSize && hasMore && pagesScraped < PAGE_SCRAPE_LIMIT) {
     let results = await HYPERSPACE_CLIENT.getMarketplaceSnapshot({
       condition: {
         projects: [{ project_id: projectId }],
@@ -35,7 +31,7 @@ async function hyperspaceGetListedCollectionNFTs(
       },
       orderBy: {
         field_name: "lowest_listing_price",
-        sort_order: priceOrder as any,
+        sort_order: priceOrder.toLocaleUpperCase() as any,
       },
       paginationInfo: {
         page_number: pageNumber,
@@ -44,19 +40,19 @@ async function hyperspaceGetListedCollectionNFTs(
 
     let snaps = results.getMarketPlaceSnapshots.market_place_snapshots!;
     let orderedListings = snaps.sort(
-      (a, b) => a.lowest_listing_mpa!.price! - b.lowest_listing_mpa!.price!
+      (a, b) => a.lowest_listing_mpa!.price! - b.lowest_listing_mpa!.price!,
     );
 
     pageNumber += 1;
     let crucialInfo: NFTListing[] = orderedListings
       .filter(
-        (arr) =>
+        arr =>
           // We filter out Magic Eden's marketplace because they
           // require an API key to make purchases programmatically
           arr.lowest_listing_mpa?.marketplace_program_id !==
-          "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"
+          "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
       )
-      .map((arr) => {
+      .map(arr => {
         return {
           price: arr.lowest_listing_mpa!.price!,
           token: arr.token_address,
@@ -74,15 +70,8 @@ async function hyperspaceGetListedCollectionNFTs(
   };
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { projectId, pageSize, priceOrder } = req.body;
-  const result = await hyperspaceGetListedCollectionNFTs(
-    projectId,
-    pageSize,
-    priceOrder
-  );
+  const result = await hyperspaceGetListedCollectionNFTs(projectId, pageSize, priceOrder);
   res.status(200).send(JSON.stringify(result));
 }
