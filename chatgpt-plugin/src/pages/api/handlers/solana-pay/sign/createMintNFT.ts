@@ -27,6 +27,7 @@ async function createMintNFT(req: NextApiRequest) {
       sellerFeeBasisPoints: sellerFee, // 2.5%
     });
     const tx = new Transaction();
+    //todo: should I partially sign the transaction here? 
     const latestBlockhashWithExpiryBlockHeight = await CONNECTION.getLatestBlockhash();
     tx.add(
       mintTransactionBuilder.toTransaction(latestBlockhashWithExpiryBlockHeight),
@@ -42,18 +43,6 @@ async function createMintNFT(req: NextApiRequest) {
 export default makeRespondToSolanaPayGet(
   makeRespondToSolanaPayPost(createMintNFT)
 );
-
-// sample curl command to hit the createMintNFT endpoint
-/**
-curl --location 'localhost:3000/api/handlers/solana-pay/sign/createMintNFT?=null' \
---header 'Content-Type: application/json' \
---data '{
-    "name": "test first AI minted NFT",
-    "account":"8rcvXRDktcqzNZ9N1iDAptYky93HuZvbzs76ZFXPmKQs",
-    "metadataUri":"https://arweave.net/9XciS8hnBhf1PLf7B1zlUEP_cLiQQ9Zu8xiKV5hd7rc",
-    "sellerFee":250
-}'
-*/
 
 // TODO: older code for reference - to be deleted before merge
 // await mintNFT(connection, mint, metadata, payerPublicKey, instructions, signers);
