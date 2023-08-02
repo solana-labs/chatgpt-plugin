@@ -23,9 +23,7 @@ export default function Home() {
         </section>
 
         <p className="my-10 text-center">
-          The Solana Labs ChatGPT Plugin helps you query information the Solana blockchain and
-          create QR codes to perform basic actions on Solana, like transferring a token or buying an
-          NFT. Solana Labs has provided the code as a reference implementation with permissive
+          The Solana Labs ChatGPT Plugin helps you query information on the Solana blockchain. Solana Labs has provided the code as a reference implementation with permissive
           licensing on Github. A list of features and example queries is provided below.
         </p>
 
