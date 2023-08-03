@@ -14,6 +14,7 @@
     "@hellomoon/api": "^1.16.7",
     "@heroicons/react": "^2.0.18",
     "@metaplex-foundation/js": "^0.19.3",
+    "@portal-payments/solana-wallet-names": "^2.1.0",
     "@solana/pay": "^0.2.5",
     "@solana/spl-token": "^0.3.8",
     "@solana/web3.js": "^1.77.3",
