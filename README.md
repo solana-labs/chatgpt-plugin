@@ -2,8 +2,6 @@
 A ChatGPT plugin for Solana. Install as an unverified plugin with url `https://chatgpt.solanalabs.com`.
 
 <div>
-<img width="350" alt="Transfer Sol in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383403-f92b8aa1-bb11-47d8-89d9-3369192dfdf1.png">
-<img width="350" alt="Buy NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/234383690-464172de-a49b-40d1-9bff-74570cbd4e89.png">
 <img width="350" alt="Search NFTs in ChatGPT" src="https://user-images.githubusercontent.com/7481857/231182274-40b42f0e-5e5d-4050-9e31-2f75375481c1.png">
 </div>
 
@@ -54,7 +52,7 @@ Accepts
 }
 ```
 
-Returns the transaction status metadata for the `getTransaction` method from the Solana RPC.
+Returns human-readable transaction information, parsed from the `getTransaction` method of the Solana RPC.
 </details>
 
 <details>
@@ -131,7 +129,12 @@ Returns LLM friendly response of available NFTs:
 ```
 </details>
 
+
+## Private endpoints (not LLM accessible)
+
 ### Endpoints for Sending Transactions
+
+Note: these endpoints are currently disabled in the production version of the ChatGPT plugin
 
 <details>
 <summary> /createBuyTransaction { token, price }</summary>
@@ -174,7 +177,7 @@ Returns
 ```
 </details>
 
-### Endpoints for Transaction Composition (not LLM accessible)
+### Endpoints for Transaction Composition
 
 These are also subject to change, and we may create actual webpages to inspect
 the transaction before signing. However for now, these are simply redirect links 
