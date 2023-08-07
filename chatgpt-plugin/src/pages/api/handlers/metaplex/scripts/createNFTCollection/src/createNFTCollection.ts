@@ -7,7 +7,7 @@ import {
 } from "@metaplex-foundation/js";
 import { Keypair, Connection, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, createAccount, createMint, mintTo } from "@solana/spl-token";
-import { savePublicKeyToFile } from "../../utils/helper";
+import { savePublicKeyToFile } from "../../../utils/helper";
 
 import {
   PublicKey,
@@ -21,7 +21,7 @@ import {
   createSetCollectionSizeInstruction,
 } from "@metaplex-foundation/mpl-token-metadata";
 import * as fs from "fs";
-import { CONNECTION } from "../../../../constants";
+import { CONNECTION } from "../../../../../constants";
 import dotenv from "dotenv";
 dotenv.config();
 
