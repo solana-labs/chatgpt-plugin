@@ -1,12 +1,12 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { loadNonceFromFile, loadPublicKeysFromFile } from "../utils/helper";
+import { loadNonceFromFile, loadPublicKeysFromFile } from "../../../utils/helper";
 import {
   Metaplex,
   bundlrStorage,
   keypairIdentity,
 } from "@metaplex-foundation/js";
-import { createNFTCollection } from "./src/createNFTCollection";
-import {CONNECTION } from "../../../constants";
+import { createNFTCollection } from "./createNFTCollection";
+import {CONNECTION } from "../../../../../constants";
 // import { createTree } from "./createTree";
 // import { mintNft } from "./mintNft";
 // import { mintCompressedNft } from "./mintCompressedNft";
