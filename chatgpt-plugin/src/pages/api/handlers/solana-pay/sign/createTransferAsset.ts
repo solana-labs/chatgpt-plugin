@@ -1,24 +1,33 @@
+import {
+  SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+  SPL_NOOP_PROGRAM_ID,
+} from "@solana/spl-account-compression";
 import { NextApiRequest } from "next";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { createTransferInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
+import { WrappedConnection } from "../utils/wrappedConnection"
+import {
+  bufferToArray,
+  getBubblegumAuthorityPDA,
+} from "../utils/helpers";
+import {
+  createTransferInstruction
+} from "@metaplex-foundation/mpl-bubblegum";
+import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
+
 import configConstants, { CONNECTION } from "../../../constants";
 configConstants();
 
-
-async function createTransferAsset(req: NextApiRequest) {
-  
-  const { destination } = req.query;
-  const { account: sender } = req.body;
+export async function createTransferAsset(req: NextApiRequest) {
+  const { newOwner, assetId } = req.query;
+  const { account: owner } = req.body;
+  if (!owner || !newOwner || !assetId) {
+    throw new Error("Missing required parameters");
+  }
   // connectionWrapper: WrappedConnection,
   // owner: Keypair,
   // newOwner: Keypair,
   // assetId: string  
-  const connectionWrapper = new WrappedConnection(CONNECTION);
-  // console.log(
-  //     `Transfering asset ${assetId} from ${owner.publicKey.toBase58()} to ${newOwner.publicKey.toBase58()}. 
-  //     This will depend on indexer api calls to fetch the necessary data.`
-  //   );
+  const connectionWrapper = new WrappedConnection(owner, CONNECTION.rpcEndpoint);
     let assetProof = await connectionWrapper.getAssetProof(assetId);
     if (!assetProof?.proof || assetProof.proof.length === 0) {
       throw new Error("Proof is empty");
@@ -55,7 +64,7 @@ async function createTransferAsset(req: NextApiRequest) {
         treeAuthority,
         leafOwner: new PublicKey(rpcAsset.ownership.owner),
         leafDelegate: leafDelegate,
-        newLeafOwner: newOwner.publicKey,
+        newLeafOwner: new PublicKey(newOwner),
         merkleTree: new PublicKey(assetProof.tree_id),
         logWrapper: SPL_NOOP_PROGRAM_ID,
         compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
@@ -74,21 +83,6 @@ async function createTransferAsset(req: NextApiRequest) {
       }
     );
     const tx = new Transaction().add(transferIx);
-    tx.feePayer = sender.publicKey;
+    tx.feePayer = owner.publicKey;
     return tx;
-    // try {
-    //   const sig = await sendAndConfirmTransaction(
-    //     connectionWrapper,
-    //     tx,
-    //     [owner],
-    //     {
-    //       commitment: "confirmed",
-    //       skipPreflight: true,
-    //     }
-    //   );
-    //   return sig;
-    // } catch (e) {
-    //   console.error("Failed to transfer compressed asset", e);
-    //   throw e;
-    // }
   };
