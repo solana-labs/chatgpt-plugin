@@ -23,9 +23,9 @@ export async function createBurnAsset(req: NextApiRequest) {
     owner: Keypair,
     assetId?: string
     */
-    const { newOwner, assetId } = req.query;
+    const { assetId } = req.query;
     const { account: owner } = req.body;
-    if (!owner || !newOwner || !assetId) {
+    if (!owner || !assetId) {
       throw new Error("Missing required parameters");
     }
     const connectionWrapper = new WrappedConnection(owner, CONNECTION.rpcEndpoint);
