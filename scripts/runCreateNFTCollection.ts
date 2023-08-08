@@ -1,23 +1,30 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
-import { loadNonceFromFile, loadPublicKeysFromFile } from "../../../utils/helper";
+import { Keypair } from "@solana/web3.js";
+import { loadPublicKeysFromFile } from "./helper";
 import {
   Metaplex,
   bundlrStorage,
   keypairIdentity,
 } from "@metaplex-foundation/js";
 import { createNFTCollection } from "./createNFTCollection";
-import {CONNECTION } from "../../../../../constants";
+import { Connection } from "@solana/web3.js";
 // import { createTree } from "./createTree";
 // import { mintNft } from "./mintNft";
 // import { mintCompressedNft } from "./mintCompressedNft";
+import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
 
+
 (async () => {
+  console.log("process.env.HELIUS_API_KEY: ", process.env.HELIUS_API_KEY)
+  const HELIUS_URL = `https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`;
+  const CONNECTION = new Connection(HELIUS_URL);
   const payer = Keypair.fromSecretKey(
-    Uint8Array.from(JSON.parse(process.env.PRIVATE_KEY ?? "[]"))
+    new Uint8Array(JSON.parse(fs.readFileSync("~/.config/solana/id.json", "utf-8")))
   );
+  
   console.log("payer: ", payer.publicKey.toBase58());
+  console.log("payer publicKey: ", payer.publicKey);
 
 //   const CONNECTION = new Connection(process.env.RPC_URL ?? "", "confirmed");
   const balance = await CONNECTION.getBalance(payer.publicKey);
