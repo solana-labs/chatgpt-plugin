@@ -1,8 +1,8 @@
 import { Connection, Keypair, PublicKey, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
 import {
-  Metaplex
+  Metaplex, 
+  JsonMetadata
 } from "@metaplex-foundation/js";
-import * as fs from "fs";
 import {
   MetadataArgs,
   PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
@@ -19,61 +19,41 @@ import { CONNECTION } from "../../../constants";
 
 import dotenv from "dotenv";
 import { NextApiRequest } from "next";
+import { loadPublicKeysFromFile } from "../utils/helpers";
+import { error } from "console";
 dotenv.config();
-
+import {readFileSync} from "fs";
 
 export async function createMintCNFT(
   req: NextApiRequest
 ) {
-  const { metadataUri, amount } = req.query;
+  const treeAddressesData = JSON.parse(readFileSync("./assets/public-tree-addresses.json", "utf8"))["publicTreeAddresses"]
+  const publicTreeAddresses: PublicKey[] = treeAddressesData["publicTreeAddresses"].map((treeAddress: string) => new PublicKey(treeAddress));
+  console.log("publicTreeAddresses", publicTreeAddresses)
+  
+  const { metadataUri, treeAddress = publicTreeAddresses[0] } = req.query;
   const { account: payer } = req.body;
+
   //TODO: decisions to take regarding these
-  const treeAddress;
-  const treeAuthority;
-  const collectionMint;
-  const collectionMetadataAccount;
-  const collectionMasterEditionAccount;
-
-
-
-
+  const treeAuthority = payer.publicKey;
+  // loadPublicKeysFromFile();
+  let keys = loadPublicKeysFromFile();
+  if (
+    !keys?.collectionMint ||
+    !keys?.collectionMetadataAccount ||
+    !keys?.collectionMasterEditionAccount
+  ) {
+    throw error("Please create a collection first and save the keys in the assets");
+  }
   
   const metaplex = Metaplex.make(CONNECTION);
-  //   .use(keypairIdentity(payer))
-  //   .use(
-  //     bundlrStorage({
-  //       address: "https://devnet.bundlr.network",
-  //       providerUrl: "https://api.devnet.solana.com",
-  //       timeout: 60000,
-  //     })
-  //   );
-
-  // // create nft metadata
-  // const buffer = fs.readFileSync(`./src/assets/${nonce}.${EXTENSION}`);
-  // const file = toMetaplexFile(buffer, `${nonce}.${EXTENSION}`);
-  // const imageUri = await metaplex.storage().upload(file);
-
-  // const data = fs.readFileSync("./src/collection.json", "utf-8");
-  // const nftInfo = JSON.parse(data);
-
-  // const nftMetadata: UploadMetadataInput = {
-  //   name: `${nftInfo.name ?? "NFT"} #${nonce}`,
-  //   symbol: `${nftInfo.symbol ?? "NFT"}`,
-  //   description: "The Studious Dog are smart and productive dogs.",
-  //   image: imageUri,
-  //   properties: {
-  //     files: [
-  //       {
-  //         uri: `${nonce}.${EXTENSION}`,
-  //         type: `image/${EXTENSION}`,
-  //       },
-  //     ],
-  //   },
-  // };
-  // const { uri } = await metaplex.nfts().uploadMetadata(nftMetadata);
-
   // create compressed nft
   //TODO: get the nft metadata details from metaplex
+  console.log("reached before fetching the nft metadata")
+  const nftMetadata = await metaplex
+            .storage()
+            .downloadJson<JsonMetadata>(metadataUri as string);
+  console.log("nftMetadata", nftMetadata);
   const compressedNftMetadata: MetadataArgs = {
     name: nftMetadata.name ?? "",
     symbol: nftMetadata.symbol ?? "",
@@ -95,7 +75,7 @@ export async function createMintCNFT(
     tokenStandard: TokenStandard.NonFungible,
   };
 
-  const receiverAddress = payer.publicKey;
+  // const receiverAddress = payer.publicKey;
   // derive PDA (owned bt Bubblegum) to act as the signer of the compressed minting
   const [bubblegumSigner, _bump] = PublicKey.findProgramAddressSync(
     [Buffer.from("collection_cpi", "utf8")],
@@ -106,17 +86,17 @@ export async function createMintCNFT(
     {
       payer: payer.publicKey,
 
-      merkleTree: treeAddress,
+      merkleTree: treeAddress as PublicKey,
       treeAuthority: treeAuthority,
       treeDelegate: payer.publicKey,
 
-      collectionMint: collectionMint,
+      collectionMint: keys.collectionMint,
       collectionAuthority: payer.publicKey,
-      collectionMetadata: collectionMetadataAccount,
+      collectionMetadata: keys.collectionMetadataAccount,
       collectionAuthorityRecordPda: BUBBLEGUM_PROGRAM_ID,
-      editionAccount: collectionMasterEditionAccount,
+      editionAccount: keys.collectionMasterEditionAccount,
 
-      leafOwner: receiverAddress,
+      leafOwner: payer.publicKey,
       leafDelegate: payer.publicKey,
 
       // other accounts
@@ -127,28 +107,21 @@ export async function createMintCNFT(
     },
     {
       metadataArgs: Object.assign(compressedNftMetadata, {
-        collection: { key: collectionMint, verified: false },
+        collection: { key: keys.collectionMint, verified: false },
       }),
     }
   );
+  const tx = new Transaction();
+  tx.add(mintToCollectionIx);
+  return tx;
+  // try {
+  //   const tx = new Transaction();
+  //   tx.add(mintToCollectionIx);
+  //   return tx;
 
-  try {
-    const tx = new Transaction();
-    tx.add(mintToCollectionIx);
-    return tx;
-    // const txSig = await sendAndConfirmTransaction(
-    //   connection,
-    //   tx,
-    //   [payer],
-    //   {
-    //     commitment: "confirmed",
-    //     skipPreflight: false,
-    //   }
-    // )
-
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  // } catch (e) {
+  //   console.error(e);
+  //   throw e;
+  // }
 
 }
