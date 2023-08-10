@@ -4,7 +4,7 @@ import {
 } from "@solana/spl-account-compression";
 import { NextApiRequest } from "next";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { WrappedConnection } from "../utils/wrappedConnection"
+
 import {
   bufferToArray,
   getBubblegumAuthorityPDA,
@@ -13,42 +13,37 @@ import {
   createTransferInstruction
 } from "@metaplex-foundation/mpl-bubblegum";
 import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
-
+import { getAssetProof, getAsset } from "../utils/helpers";
 import configConstants, { CONNECTION } from "../../../constants";
+import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 configConstants();
 
-export async function createTransferAsset(req: NextApiRequest) {
-  const { newOwner, assetId } = req.query;
-  const { account: owner } = req.body;
-  if (!owner || !newOwner || !assetId) {
+async function createTransferAsset(req: NextApiRequest) {
+  const { destination, assetId } = req.query;
+  const { account: sender } = req.body;
+  if (!sender || !destination || !assetId) {
     throw new Error("Missing required parameters");
   }
-  // connectionWrapper: WrappedConnection,
-  // owner: Keypair,
-  // newOwner: Keypair,
-  // assetId: string  
-  const connectionWrapper = new WrappedConnection(owner, CONNECTION.rpcEndpoint);
-    let assetProof = await connectionWrapper.getAssetProof(assetId);
+  
+    const assetProof = await getAssetProof(assetId, CONNECTION.rpcEndpoint);
     if (!assetProof?.proof || assetProof.proof.length === 0) {
-      throw new Error("Proof is empty");
+      throw new Error("Proof retrieved for the given assetId is empty. Please check the assetId.");
     }
-    let proofPath = assetProof.proof.map((node: string) => ({
+    const proofPath = assetProof.proof.map((node: string) => ({
       pubkey: new PublicKey(node),
       isSigner: false,
       isWritable: false,
     }));
     console.log("Successfully got proof path from RPC.");
   
-    const rpcAsset = await connectionWrapper.getAsset(assetId);
+    const rpcAsset = await getAsset(assetId,  CONNECTION.rpcEndpoint);
     console.log(
       "Successfully got asset from RPC. Current owner: " +
         rpcAsset.ownership.owner
     );
-    if (rpcAsset.ownership.owner !== owner.publicKey.toBase58()) {
+    if (rpcAsset.ownership.owner !== sender) {
       throw new Error(
-        `NFT is not owned by the expected owner. Expected ${owner.publicKey.toBase58()} but got ${
-          rpcAsset.ownership.owner
-        }.`
+        `NFT is not owned by the expected owner. Expected ${new PublicKey(sender)} but got ${rpcAsset.ownership.owner}.`
       );
     }
   
@@ -64,7 +59,7 @@ export async function createTransferAsset(req: NextApiRequest) {
         treeAuthority,
         leafOwner: new PublicKey(rpcAsset.ownership.owner),
         leafDelegate: leafDelegate,
-        newLeafOwner: new PublicKey(newOwner),
+        newLeafOwner: new PublicKey(destination as string),
         merkleTree: new PublicKey(assetProof.tree_id),
         logWrapper: SPL_NOOP_PROGRAM_ID,
         compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
@@ -83,6 +78,10 @@ export async function createTransferAsset(req: NextApiRequest) {
       }
     );
     const tx = new Transaction().add(transferIx);
-    tx.feePayer = owner.publicKey;
-    return tx;
-  };
+    tx.feePayer = new PublicKey(sender);
+    tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
+    return {
+      transaction: tx.serialize({ requireAllSignatures: false }).toString("base64"),
+    };
+}
+export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createTransferAsset));
