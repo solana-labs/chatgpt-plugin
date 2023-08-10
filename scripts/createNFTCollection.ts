@@ -4,7 +4,7 @@ import {
   UploadMetadataInput,
 } from "@metaplex-foundation/js";
 import { Keypair, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createAccount, createMint, mintTo } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, createAccount, createAssociatedTokenAccount, createMint, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import { savePublicKeyToFile } from "./helper";
 
 import {
@@ -19,20 +19,27 @@ import {
   createSetCollectionSizeInstruction,
 } from "@metaplex-foundation/mpl-token-metadata";
 import * as fs from "fs";
-import { CONNECTION } from "../chatgpt-plugin/src/pages/api/constants";
+// import configConstants, { CONNECTION } from "../chatgpt-plugin/src/pages/api/constants";
+// // import configConstants, { HELIUS_URL } from "../../constants";
+// configConstants();
+
 import dotenv from "dotenv";
 dotenv.config();
 
+const ASSETS_DIR = "../chatgpt-plugin/public/assets/" 
 export async function createNFTCollection(
   payer: Keypair,
   metaplex: Metaplex,
 ) {
-  // Create collection metadata
-  const buffer = fs.readFileSync(`../assets/chatgpt-collection-logo.png`);
-  const file = toMetaplexFile(buffer, `chatgpt-collection-logo.png`);
-  const imageUri = await metaplex.storage().upload(file);
 
-  const data = fs.readFileSync("./collection-metadata.json", "utf-8");
+  console.log(metaplex.connection);
+  // Create collection metadata
+  const buffer = fs.readFileSync(`${ASSETS_DIR}chatgpt-collection-logo.png`);
+  const file = toMetaplexFile(buffer, `chatgpt-collection-logo.png`);
+  console.log("before Uploading file to Metaplex")
+  const imageUri = await metaplex.storage().upload(file);
+  console.log("after Uploading file to Metaplex")
+  const data = fs.readFileSync(`${ASSETS_DIR}chatgpt-collection-metadata.json`, "utf-8");
   const collectionInfo = JSON.parse(data);
 
   const collectionMetadata: UploadMetadataInput = {
@@ -41,12 +48,13 @@ export async function createNFTCollection(
     image: imageUri,
     description: collectionInfo.description,
   };
+  console.log("before Uploading metadata to Metaplex")
   const { uri } = await metaplex.nfts().uploadMetadata(collectionMetadata);
-
+  console.log("after Uploading metadata to Metaplex")
   // Create collection
   const collectionMetadataV3: CreateMetadataAccountArgsV3 = {
     data: {
-      name: `${collectionMetadata.name ?? ""} Collection`,
+      name: `${collectionMetadata.name ?? ""}`,
       symbol: `${collectionMetadata.symbol ?? ""}`,
       uri,
       sellerFeeBasisPoints: 100,
@@ -63,24 +71,33 @@ export async function createNFTCollection(
     isMutable: false,
     collectionDetails: null,
   };
-
+  console.log("before creating mint")
   const collectionMint = await createMint(
-    CONNECTION,
+    metaplex.connection,
     payer,
     payer.publicKey, // mintAuthority
     payer.publicKey, // freezeAuthority
     0 // collection -> decimal == 0
   )
-
-  const tokenAccount = await createAccount(
-    CONNECTION,
+  console.log("before creating account")
+  // const tokenAccount = await createAccount(
+  //   metaplex.connection,
+  //   payer,
+  //   collectionMint,
+  //   payer.publicKey,
+  // );
+  console.log(collectionMint.toString())
+  const tokenAccount = await createAssociatedTokenAccount(
+    metaplex.connection, 
     payer,
-    collectionMint,
+    collectionMint, 
     payer.publicKey,
+    { commitment: "confirmed" }
   );
-
-  await mintTo(CONNECTION, payer, collectionMint, tokenAccount, payer, 1, [], undefined, TOKEN_PROGRAM_ID);
-
+  
+  console.log("before minting")
+  await mintTo(metaplex.connection, payer, collectionMint, tokenAccount, payer, 1, [], { commitment: "confirmed" });
+  console.log("after minting")
   const [collectionMetadataAccount, _bump] = PublicKey.findProgramAddressSync(
     [Buffer.from("metadata", "utf8"), TOKEN_METADATA_PROGRAM_ID.toBuffer(), collectionMint.toBuffer()],
     TOKEN_METADATA_PROGRAM_ID,
@@ -143,7 +160,7 @@ export async function createNFTCollection(
     // tx.sign(payer); ??
 
     await sendAndConfirmTransaction(
-      CONNECTION,
+      metaplex.connection,
       tx,
       [payer],
       {
@@ -155,9 +172,11 @@ export async function createNFTCollection(
     console.error("\nFailed to create collection:", e);
     throw e;
   }
-  savePublicKeyToFile("collectionMint", collectionMint);
-  savePublicKeyToFile("collectionMetadataAccount", collectionMetadataAccount);
-  savePublicKeyToFile("collectionMasterEditionAccount", collectionMasterEditionAccount);
-  console.log("Collection Address: ", collectionMint.toBase58())
+  savePublicKeyToFile("collectionMint", collectionMint, `${ASSETS_DIR}/chatgpt-collection-keys.json`);
+  savePublicKeyToFile("collectionMetadataAccount", collectionMetadataAccount, `${ASSETS_DIR}chatgpt-collection-keys.json`);
+  savePublicKeyToFile("collectionMasterEditionAccount", collectionMasterEditionAccount, `${ASSETS_DIR}chatgpt-collection-keys.json`);
+  console.log("Collection Mint Address: ", collectionMint.toBase58())
+  console.log("Collection Metadata Address: ", collectionMetadataAccount.toBase58())
+  console.log("Collection Master Edition Address: ", collectionMasterEditionAccount.toBase58())
   return { collectionMint, collectionMetadataAccount, collectionMasterEditionAccount }
 }
