@@ -64,6 +64,7 @@ export function savePublicKeyToFile(
     fs.writeFileSync(absPath, JSON.stringify(data), {
       encoding: "utf-8",
     });
+    console.log("Saved to file: ", absPath);
 
     // reload the keys for sanity
     data = loadPublicKeysFromFile(absPath);

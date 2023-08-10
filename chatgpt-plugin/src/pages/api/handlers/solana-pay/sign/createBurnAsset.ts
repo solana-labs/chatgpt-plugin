@@ -1,21 +1,22 @@
 import {
     SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
     SPL_NOOP_PROGRAM_ID,
-  } from "@solana/spl-account-compression";
-  import { NextApiRequest } from "next";
-  import { PublicKey, Transaction } from "@solana/web3.js";
-  import { WrappedConnection } from "../utils/wrappedConnection"
-  import {
-    bufferToArray,
-    getBubblegumAuthorityPDA
-  } from "../utils/helpers";
-  import {
-    createBurnInstruction
-  } from "@metaplex-foundation/mpl-bubblegum";
-  import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
-  import configConstants, { CONNECTION } from "../../../constants";
-  configConstants();
-
+} from "@solana/spl-account-compression";
+import { NextApiRequest } from "next";
+import { PublicKey, Transaction } from "@solana/web3.js";
+import { WrappedConnection } from "../utils/wrappedConnection"
+import {
+bufferToArray,
+getBubblegumAuthorityPDA
+} from "../utils/helpers";
+import {
+createBurnInstruction
+} from "@metaplex-foundation/mpl-bubblegum";
+import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
+import configConstants, { CONNECTION } from "../../../constants";
+configConstants();
+import { getAssetProof, getAsset } from "../utils/helpers";
+import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 
 export async function createBurnAsset(req: NextApiRequest) {
     /*
@@ -28,9 +29,8 @@ export async function createBurnAsset(req: NextApiRequest) {
     if (!owner || !assetId) {
       throw new Error("Missing required parameters");
     }
-    const connectionWrapper = new WrappedConnection(owner, CONNECTION.rpcEndpoint);
-    let assetProof = await connectionWrapper.getAssetProof(assetId);
-    const rpcAsset = await connectionWrapper.getAsset(assetId);
+    let assetProof = await getAssetProof(assetId, CONNECTION.rpcEndpoint);
+    const rpcAsset = await getAsset(assetId, CONNECTION.rpcEndpoint);
     const leafNonce = rpcAsset.compression.leaf_id;
     let proofPath = assetProof.proof.map((node: string) => ({
       pubkey: new PublicKey(node),
@@ -43,6 +43,13 @@ export async function createBurnAsset(req: NextApiRequest) {
     const leafDelegate = rpcAsset.ownership.delegate
       ? new PublicKey(rpcAsset.ownership.delegate)
       : new PublicKey(rpcAsset.ownership.owner);
+
+    // TODO: Ask for who all to grant the permission to burn apart from the owner. 
+    if (rpcAsset.ownership.owner !== owner) {
+        throw new Error(
+            `NFT is not owned by the expected owner. Expected ${new PublicKey(owner)} but got ${rpcAsset.ownership.owner}.`
+        );
+    }
     const burnIx = createBurnInstruction(
       {
         treeAuthority,
@@ -67,6 +74,11 @@ export async function createBurnAsset(req: NextApiRequest) {
       }
     );
     const tx = new Transaction().add(burnIx);
-    tx.feePayer = owner.publicKey;
-    return tx;
-  };
+    tx.feePayer = new PublicKey(owner);
+    tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
+    return {
+      transaction: tx.serialize({ requireAllSignatures: false }).toString("base64"),
+    };
+}
+
+export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createBurnAsset));

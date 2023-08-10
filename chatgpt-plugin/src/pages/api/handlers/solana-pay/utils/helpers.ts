@@ -8,6 +8,7 @@ import {
 } from "@solana/web3.js";
 import { BN, Provider } from "@project-serum/anchor";
 import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+import axios from "axios";
 
 export async function getBubblegumAuthorityPDA(merkleRollPubKey: PublicKey) {
   const [bubblegumAuthorityPDAKey] = await PublicKey.findProgramAddress(
@@ -108,3 +109,31 @@ export async function getMasterEdition(mint: PublicKey) {
     )
   )[0];
 }
+
+export async function getAsset(assetId: any, rpcUrl: any): Promise<any> {
+    try {
+      const response = await axios.post(rpcUrl, {
+        jsonrpc: "2.0",
+        method: "get_asset",
+        id: "compression-example",
+        params: [assetId],
+      });
+      return response.data.result;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  
+  export async function getAssetProof(assetId: any, rpcUrl: any): Promise<any> {
+    try {
+      const response = await axios.post(rpcUrl, {
+        jsonrpc: "2.0",
+        method: "get_asset_proof",
+        id: "compression-example",
+        params: [assetId],
+      });
+      return response.data.result;
+    } catch (error) {
+      console.error(error);
+    }
+  }
