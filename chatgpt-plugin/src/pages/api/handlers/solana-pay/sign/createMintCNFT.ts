@@ -1,39 +1,32 @@
-import { Keypair, PublicKey, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+import { JsonMetadata, Metaplex } from "@metaplex-foundation/js";
 import {
-  Metaplex, 
-  JsonMetadata
-} from "@metaplex-foundation/js";
-import {
-  MetadataArgs,
   PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
-  createMintToCollectionV1Instruction,
+  MetadataArgs,
   TokenProgramVersion,
   TokenStandard,
+  createMintToCollectionV1Instruction,
 } from "@metaplex-foundation/mpl-bubblegum";
+import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import {
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
 } from "@solana/spl-account-compression";
-import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import dotenv from "dotenv";
+import { NextApiRequest } from "next";
+import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 import configConstants, { CONNECTION } from "../../../constants";
 configConstants();
-import dotenv from "dotenv";
-import { NextApiRequest, NextApiResponse } from "next";
 dotenv.config();
-import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 
-
-async function createMintCNFT(
-  req: NextApiRequest
-) {
-  const { metadataUri, treeAddress } = req.query;
+async function createMintCNFT(req: NextApiRequest) {
+  // const { metadataUri, treeAddress } = req.query; // the tree address is currently hardcoded below
+  const { metadataUri } = req.query;
   const { account: payer } = req.body;
-  
+
   const metaplex = Metaplex.make(CONNECTION);
   // create compressed nft
-  const nftMetadata = await metaplex
-            .storage()
-            .downloadJson<JsonMetadata>(metadataUri as string);
+  const nftMetadata = await metaplex.storage().downloadJson<JsonMetadata>(metadataUri as string);
   console.log("nftMetadata", nftMetadata);
   const compressedNftMetadata: MetadataArgs = {
     name: nftMetadata.name ?? "",
@@ -59,14 +52,16 @@ async function createMintCNFT(
   // derive PDA (owned bt Bubblegum) to act as the signer of the compressed minting
   const [bubblegumSigner, _bump] = PublicKey.findProgramAddressSync(
     [Buffer.from("collection_cpi", "utf8")],
-    BUBBLEGUM_PROGRAM_ID
+    BUBBLEGUM_PROGRAM_ID,
   );
-  const collectionOwner = Keypair.fromSecretKey(Uint8Array.from(Buffer.from(process.env.COLLECTION_OWNER_SECRET_KEY as string, "base64")))
+  const collectionOwner = Keypair.fromSecretKey(
+    Uint8Array.from(Buffer.from(process.env.COLLECTION_OWNER_SECRET_KEY as string, "base64")),
+  );
   const mintToCollectionIx = createMintToCollectionV1Instruction(
     {
       payer: new PublicKey(payer),
 
-      merkleTree: new PublicKey(process.env.TREE_ADDRESS_1 as string), 
+      merkleTree: new PublicKey(process.env.TREE_ADDRESS_1 as string),
       treeAuthority: new PublicKey(process.env.TREE_AUTHORITY_1 as string),
       treeDelegate: new PublicKey(payer),
 
@@ -74,7 +69,9 @@ async function createMintCNFT(
       collectionAuthority: collectionOwner.publicKey,
       collectionMetadata: new PublicKey(process.env.CHATGPT_COLLECTION_METADATA_ACCOUNT as string),
       collectionAuthorityRecordPda: BUBBLEGUM_PROGRAM_ID,
-      editionAccount: new PublicKey(process.env.CHATGPT_COLLECTION_MASTER_EDITION_ACCOUNT as string),
+      editionAccount: new PublicKey(
+        process.env.CHATGPT_COLLECTION_MASTER_EDITION_ACCOUNT as string,
+      ),
 
       leafOwner: new PublicKey(payer),
       leafDelegate: new PublicKey(payer),
@@ -87,9 +84,12 @@ async function createMintCNFT(
     },
     {
       metadataArgs: Object.assign(compressedNftMetadata, {
-        collection: { key: new PublicKey(process.env.CHATGPT_COLLECTION_MINT as string), verified: false },
+        collection: {
+          key: new PublicKey(process.env.CHATGPT_COLLECTION_MINT as string),
+          verified: false,
+        },
       }),
-    }
+    },
   );
 
   const tx = new Transaction();

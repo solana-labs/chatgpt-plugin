@@ -6,7 +6,7 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { BN, Provider } from "@project-serum/anchor";
+import { BN, Provider } from "@coral-xyz/anchor";
 import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import axios from "axios";
 

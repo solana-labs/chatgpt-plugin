@@ -4,7 +4,6 @@ import {
 } from "@solana/spl-account-compression";
 import { NextApiRequest } from "next";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { WrappedConnection } from "../utils/wrappedConnection"
 import {
 bufferToArray,
 getBubblegumAuthorityPDA
@@ -12,7 +11,7 @@ getBubblegumAuthorityPDA
 import {
 createBurnInstruction
 } from "@metaplex-foundation/mpl-bubblegum";
-import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import configConstants, { CONNECTION } from "../../../constants";
 configConstants();
 import { getAssetProof, getAsset } from "../utils/helpers";

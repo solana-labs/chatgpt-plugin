@@ -4,9 +4,9 @@ info:
   description: An API for interacting with the NFT collections using Metaplex
   version: 1.0.0
 servers:
-  - url: https://chatgpt.solanalabs.com/api/metaplex
+  - url: https://chatgpt.solanalabs.com/
 paths:
-/api/metaplex/getCNFTRent:
+  /api/metaplex/getCNFTRent:
     post:
       summary: Shows the rent for minting a compressed NFT collection with the passed parameters
       description: Shows the rent for minting a compressed NFT collection according to the passed 
@@ -19,7 +19,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/metaplexGetCNFTRentRequest"
+              $ref: "#/components/schemas/getCNFTRentRequest"
       responses:
         "200":
           description: Successful Response
@@ -31,114 +31,114 @@ paths:
         The user should choose one of these addresses to be passed to the createMintCNFT endpoint for minting 
         a new compressed NFT to the chosen tree. 
       operationId: get_public_tree_addresses
-      responses:
-        "200":
-          description: Successful Response
-  /jupiter/historical:
-    post:
-      summary: Shows the volume, number of users, and number of transactions on Jupiter over time
-      description:
-        Shows the volume, number of users, and number of transactions on Jupiter over time
-      operationId: query_jupiter_historical_summary
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/jupiterHistoricalRequest"
+              $ref: "#/components/schemas/getPublicTreeAddressesRequest"
       responses:
         "200":
           description: Successful Response
-  /jupiter/pairs:
+  /api/handlers/solana-pay/qr/createMintCNFT:
     post:
-      summary: Shows the volume of swaps for token pairs on Jupiter
+      summary: Helps mint a Compressed NFT given its Metadata URI.
       description:
-        Shows the volume of swaps for token pairs on Jupiter. Note that swapPair is the combination
-        of the source and destination symbol. The order will be in alphabetical order. For example,
-        "USDC - wSOL". Note that "USD" is not a valid token, and should be converted to "USDC" when
-        using this API. Also, 24hr is a day, 7D is a week, 30D is a month.
-      operationId: query_jupiter_pair_summary
+        Creates a transaction for minting the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
+      operationId: create_mint_cnft
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/jupiterPairsRequest"
+              $ref: "#/components/schemas/CreateMintCNFTRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /api/handlers/solana-pay/qr/createMintNFT:
+    post:
+      summary: Helps mint a normal uncompressed NFT given its Name, Metadata URI and the Seller fee.
+      description:
+        Creates a transaction for minting the normal uncompressed NFT with the given name, metadata uri and the seller fee. A QR code is returned which the user can scan using their wallet and approve the transaction. 
+      operationId: create_mint_nft
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMintNFTRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /api/handlers/solana-pay/qr/createTransferAsset:
+    post:
+      summary: Helps mint a Compressed NFT given its Metadata URI.
+      description:
+        Creates a transaction for minting the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
+      operationId: create_mint_cnft
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/createTransferAssetRequest"
       responses:
         "200":
           description: Successful Response
 components:
   schemas:
-    canopySize:
-      type: string
-      enum:
-        - "="
-        - "!="
-        - ">"
-        - "<"
-        - ">="
-      nullable: true
+    getCNFTRentRequest:
+      title: GetCNFTRentRequest
+      type: object
+      properties:
+        treeSize:
+          type: number
+          enum:
+            0: "custom"
+            1: "small"
+            2: "medium"
+            3: "large"
+          nullable: true
+          canopySize:
+            type: number
+            enum:
+              0: "custom"
+              1: "small"
+              2: "medium"
+              3: "large"
+              4: "none"
+          nullable: true
+        customMaxDepth:
+          $ref: "#/components/schemas/nullableNumber"
+        customMaxBufferSize:
+          $ref: "#/components/schemas/nullableNumber"
+        customCanopySize:
+          $ref: "#/components/schemas/nullableNumber"
     nullableNumber:
       type: number
       nullable: true
-    jupiterSwapRequest:
+    createMintCNFTRequest:
       type: object
       properties:
-        category:
+        metadataUri: 
           type: string
-          enum:
-            - "whole market"
-            - "jupiter only"
-            - "per amm"
-          nullable: true
-        ammProgramId:
+    createMintNFTRequest:
+      type: object
+      properties: 
+        name:
           type: string
-          nullable: true
-        swapPair:
+        metadataUri:
           type: string
-          nullable: true
-        limit:
+        sellerFee:
           type: number
-          nullable: true
-    jupiterHistoricalRequest:
+    createTransferAssetRequest:
       type: object
       properties:
-        granularity:
+        destination:
           type: string
-          enum:
-            - "daily"
-            - "weekly"
-            - "monthly"
-          nullable: true
-        limit:
-          $ref: "#/components/schemas/nullableNumber"
-        numTxnsOperator:
-          $ref: "#/components/schemas/stringComparisonOperator"
-        numTxnsValue:
-          $ref: "#/components/schemas/nullableNumber"
-        usdVolumeValue:
-          $ref: "#/components/schemas/nullableNumber"
-        usdVolumeOperator:
-          $ref: "#/components/schemas/stringComparisonOperator"
-        numUsersValue:
-          $ref: "#/components/schemas/nullableNumber"
-        numUsersOperator:
-          $ref: "#/components/schemas/stringComparisonOperator"
-    jupiterPairsRequest:
+        assetId:
+          type: string
+    createBurnAssetRequest:
       type: object
       properties:
-        swapPair:
+        assetId:
           type: string
-          nullable: true
-        limit:
-          $ref: "#/components/schemas/nullableNumber"
-        usdVolume7DOperator:
-          $ref: "#/components/schemas/stringComparisonOperator"
-        usdVolume30DOperator:
-          $ref: "#/components/schemas/stringComparisonOperator"
-        usdVolume24HrOperator:
-          $ref: "#/components/schemas/stringComparisonOperator"
-        usdVolume7DValue:
-          $ref: "#/components/schemas/nullableNumber"
-        usdVolume30DValue:
-          $ref: "#/components/schemas/nullableNumber"
-        usdVolume24HrValue:
-          $ref: "#/components/schemas/nullableNumber"
+    getPublicTreeAddressesRequest:
+      type: object
+      properties: none
