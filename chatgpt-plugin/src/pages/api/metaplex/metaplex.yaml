@@ -9,11 +9,13 @@ paths:
   /api/metaplex/getCNFTRent:
     post:
       summary: Shows the rent for minting a compressed NFT collection with the passed parameters
-      description: Shows the rent for minting a compressed NFT collection according to the passed 
-      enums treeSize and canopySize, there are three sizes small, medium and large for both treeSize and
-      canopySize. treeSize controls the maxDepth and maxBufferSize. canopySize controls canopyDepth for the 
-      asset proof. If the user wants to see the cost for custom values then enum should have value 0, and 
-      corresponding custom value should be passed in the request body.
+      description: >-
+        Shows the rent for minting a compressed NFT collection according to the passed enums
+        treeSize and canopySize, there are three sizes small, medium and large for both treeSize and
+        canopySize.  treeSize controls the maxDepth and maxBufferSize. canopySize controls
+        canopyDepth for the  asset proof. If the user wants to see the cost for custom values then
+        enum should have value 0, and  corresponding custom value should be passed in the request
+        body.
       operationId: get_cnft_rent
       requestBody:
         content:
@@ -25,11 +27,12 @@ paths:
           description: Successful Response
   /api/metaplex/getPublicTreeAddresses:
     post:
-      summary: Shows the public tree addresses on mainnet with available space for minting a compressed NFT
-      description:
-        Shows the public tree addresses on mainnet with available space for minting a compressed NFT. 
-        The user should choose one of these addresses to be passed to the createMintCNFT endpoint for minting 
-        a new compressed NFT to the chosen tree. 
+      summary:
+        Shows the public tree addresses on mainnet with available space for minting a compressed NFT
+      description: >-
+        Shows the public tree addresses on mainnet with available space for minting a compressed
+        NFT.  The user should choose one of these addresses to be passed to the createMintCNFT
+        endpoint for minting  a new compressed NFT to the chosen tree.
       operationId: get_public_tree_addresses
       requestBody:
         content:
@@ -42,37 +45,41 @@ paths:
   /api/handlers/solana-pay/qr/createMintCNFT:
     post:
       summary: Helps mint a Compressed NFT given its Metadata URI.
-      description:
-        Creates a transaction for minting the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
+      description: >-
+        Creates a transaction for minting the compressed NFT with the given metadata uri. A QR code
+        is returned which the user can scan using their wallet and approve the transaction.
       operationId: create_mint_cnft
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateMintCNFTRequest"
+              $ref: "#/components/schemas/createMintCNFTRequest"
       responses:
         "200":
           description: Successful Response
   /api/handlers/solana-pay/qr/createMintNFT:
     post:
       summary: Helps mint a normal uncompressed NFT given its Name, Metadata URI and the Seller fee.
-      description:
-        Creates a transaction for minting the normal uncompressed NFT with the given name, metadata uri and the seller fee. A QR code is returned which the user can scan using their wallet and approve the transaction. 
+      description: >-
+        Creates a transaction for minting the normal uncompressed NFT with the given name, metadata
+        uri and the seller fee. A QR code is returned which the user can scan using their wallet and
+        approve the transaction.
       operationId: create_mint_nft
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateMintNFTRequest"
+              $ref: "#/components/schemas/createMintNFTRequest"
       responses:
         "200":
           description: Successful Response
   /api/handlers/solana-pay/qr/createTransferAsset:
     post:
       summary: Helps transfer a compressed NFT from one account to another.
-      description:
-        Creates a transaction for transfering the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
-      operationId: create_mint_cnft
+      description: >-
+        Creates a transaction for transfering the compressed NFT with the given metadata uri. A QR
+        code is returned which the user can scan using their wallet and approve the transaction.
+      operationId: create_transfer_asset
       requestBody:
         content:
           application/json:
@@ -83,10 +90,11 @@ paths:
           description: Successful Response
   /api/handlers/solana-pay/qr/createBurnAsset:
     post:
-      summary: Helps mint a Compressed NFT given its Metadata URI.
-      description:
-        Creates a transaction for minting the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
-      operationId: create_mint_cnft
+      summary: Helps burn a a compressed NFT given its asset id.
+      description: >-
+        Creates a transaction for burning the compressed NFT with the given asset id. A QR code is
+        returned which the user can scan using their wallet and approve the transaction.
+      operationId: create_burn_asset
       requestBody:
         content:
           application/json:
@@ -102,43 +110,33 @@ components:
       type: object
       properties:
         treeSize:
-          type: number
-          enum:
-            0: "custom"
-            1: "small"
-            2: "medium"
-            3: "large"
-          nullable: true
-          canopySize:
-            type: number
-            enum:
-              0: "custom"
-              1: "small"
-              2: "medium"
-              3: "large"
-              4: "none"
-          nullable: true
+          type: [number, "null"]
+          enum: [0, 1, 2, 3]
+        canopySize:
+          type: [number, "null"]
+          enum: [0, 1, 2, 3, 4]
         customMaxDepth:
-          $ref: "#/components/schemas/nullableNumber"
+          type: [number, "null"]
         customMaxBufferSize:
-          $ref: "#/components/schemas/nullableNumber"
+          type: [number, "null"]
         customCanopySize:
-          $ref: "#/components/schemas/nullableNumber"
-    nullableNumber:
-      type: number
-      nullable: true
+          type: [number, "null"]
     createMintCNFTRequest:
       type: object
       properties:
-        metadataUri: 
-          type: string
+        metadataUri:
+          type: "string"
+          format: "uri"
+          maxLength: 255
     createMintNFTRequest:
       type: object
-      properties: 
+      properties:
         name:
           type: string
         metadataUri:
           type: string
+          format: "uri"
+          maxLength: 255
         sellerFee:
           type: number
     createTransferAssetRequest:
@@ -155,4 +153,4 @@ components:
           type: string
     getPublicTreeAddressesRequest:
       type: object
-      properties: none
+      properties: {}
