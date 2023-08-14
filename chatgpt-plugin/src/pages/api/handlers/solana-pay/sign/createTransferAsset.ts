@@ -5,8 +5,8 @@ import {
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { NextApiRequest } from "next";
 
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { createTransferInstruction } from "@metaplex-foundation/mpl-bubblegum";
-import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 import configConstants, { CONNECTION } from "../../../constants";
 import { bufferToArray, getAsset, getAssetProof, getBubblegumAuthorityPDA } from "../utils/helpers";
