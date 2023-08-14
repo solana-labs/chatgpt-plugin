@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Metaplex API
-  description: An API for interacting with the NFT collections using Metaplex
+  description: An API for interacting with the Solana NFT collections using Metaplex
   version: 1.0.0
 servers:
   - url: https://chatgpt.solanalabs.com/
@@ -13,9 +13,9 @@ paths:
         Shows the rent for minting a compressed NFT collection according to the passed enums
         treeSize and canopySize, there are three sizes small, medium and large for both treeSize and
         canopySize.  treeSize controls the maxDepth and maxBufferSize. canopySize controls
-        canopyDepth for the  asset proof. If the user wants to see the cost for custom values then
-        enum should have value 0, and  corresponding custom value should be passed in the request
-        body.
+        canopyDepth for the  asset proof. User can pass custom for treeSize but then has to pass
+        customMaxDepth and customMaxBufferSize. User can pass custom for canopySize but then has to
+        pass customCanopySize.
       operationId: get_cnft_rent
       requestBody:
         content:
@@ -108,13 +108,16 @@ components:
     getCNFTRentRequest:
       title: GetCNFTRentRequest
       type: object
+      required:
+        - treeSize
+        - canopySize
       properties:
         treeSize:
-          type: [number, "null"]
-          enum: [0, 1, 2, 3]
+          type: [string]
+          enum: ["custom", "small", "medium", "large"]
         canopySize:
-          type: [number, "null"]
-          enum: [0, 1, 2, 3, 4]
+          type: [string]
+          enum: ["custom", "small", "medium", "large", "none"]
         customMaxDepth:
           type: [number, "null"]
         customMaxBufferSize:
@@ -122,14 +125,21 @@ components:
         customCanopySize:
           type: [number, "null"]
     createMintCNFTRequest:
+      title: CreateMintCNFTRequest
       type: object
+      required:
+        - metadataUri
       properties:
         metadataUri:
           type: "string"
           format: "uri"
           maxLength: 255
     createMintNFTRequest:
+      title: CreateMintNFTRequest
       type: object
+      required:
+        - name
+        - metadataUri
       properties:
         name:
           type: string
@@ -141,6 +151,9 @@ components:
           type: number
     createTransferAssetRequest:
       type: object
+      required:
+        - destination
+        - assetId
       properties:
         destination:
           type: string
@@ -148,6 +161,8 @@ components:
           type: string
     createBurnAssetRequest:
       type: object
+      required:
+        - assetId
       properties:
         assetId:
           type: string
