@@ -1,0 +1,144 @@
+openapi: 3.1.0
+info:
+  title: Metaplex API
+  description: An API for interacting with the NFT collections using Metaplex
+  version: 1.0.0
+servers:
+  - url: https://chatgpt.solanalabs.com/api/metaplex
+paths:
+/api/metaplex/getCNFTRent:
+    post:
+      summary: Shows the rent for minting a compressed NFT collection with the passed parameters
+      description: Shows the rent for minting a compressed NFT collection according to the passed 
+      enums treeSize and canopySize, there are three sizes small, medium and large for both treeSize and
+      canopySize. treeSize controls the maxDepth and maxBufferSize. canopySize controls canopyDepth for the 
+      asset proof. If the user wants to see the cost for custom values then enum should have value 0, and 
+      corresponding custom value should be passed in the request body.
+      operationId: get_cnft_rent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/metaplexGetCNFTRentRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /api/metaplex/getPublicTreeAddresses:
+    post:
+      summary: Shows the public tree addresses on mainnet with available space for minting a compressed NFT
+      description:
+        Shows the public tree addresses on mainnet with available space for minting a compressed NFT. 
+        The user should choose one of these addresses to be passed to the createMintCNFT endpoint for minting 
+        a new compressed NFT to the chosen tree. 
+      operationId: get_public_tree_addresses
+      responses:
+        "200":
+          description: Successful Response
+  /jupiter/historical:
+    post:
+      summary: Shows the volume, number of users, and number of transactions on Jupiter over time
+      description:
+        Shows the volume, number of users, and number of transactions on Jupiter over time
+      operationId: query_jupiter_historical_summary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jupiterHistoricalRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /jupiter/pairs:
+    post:
+      summary: Shows the volume of swaps for token pairs on Jupiter
+      description:
+        Shows the volume of swaps for token pairs on Jupiter. Note that swapPair is the combination
+        of the source and destination symbol. The order will be in alphabetical order. For example,
+        "USDC - wSOL". Note that "USD" is not a valid token, and should be converted to "USDC" when
+        using this API. Also, 24hr is a day, 7D is a week, 30D is a month.
+      operationId: query_jupiter_pair_summary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jupiterPairsRequest"
+      responses:
+        "200":
+          description: Successful Response
+components:
+  schemas:
+    canopySize:
+      type: string
+      enum:
+        - "="
+        - "!="
+        - ">"
+        - "<"
+        - ">="
+      nullable: true
+    nullableNumber:
+      type: number
+      nullable: true
+    jupiterSwapRequest:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - "whole market"
+            - "jupiter only"
+            - "per amm"
+          nullable: true
+        ammProgramId:
+          type: string
+          nullable: true
+        swapPair:
+          type: string
+          nullable: true
+        limit:
+          type: number
+          nullable: true
+    jupiterHistoricalRequest:
+      type: object
+      properties:
+        granularity:
+          type: string
+          enum:
+            - "daily"
+            - "weekly"
+            - "monthly"
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+        numTxnsOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        numTxnsValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolumeValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolumeOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        numUsersValue:
+          $ref: "#/components/schemas/nullableNumber"
+        numUsersOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+    jupiterPairsRequest:
+      type: object
+      properties:
+        swapPair:
+          type: string
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolume7DOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        usdVolume30DOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        usdVolume24HrOperator:
+          $ref: "#/components/schemas/stringComparisonOperator"
+        usdVolume7DValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolume30DValue:
+          $ref: "#/components/schemas/nullableNumber"
+        usdVolume24HrValue:
+          $ref: "#/components/schemas/nullableNumber"

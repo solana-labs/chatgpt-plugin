@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import configConstants  from "../../../constants";
+import configConstants  from "../../constants";
 import { PublicKey } from "@solana/web3.js";
 configConstants();
 
