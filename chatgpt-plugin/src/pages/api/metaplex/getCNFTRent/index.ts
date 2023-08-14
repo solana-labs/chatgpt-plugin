@@ -1,20 +1,20 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import configConstants, { CONNECTION } from "../../../constants";
+import configConstants, { CONNECTION } from "../../constants";
 import { getConcurrentMerkleTreeAccountSize, ALL_DEPTH_SIZE_PAIRS, DepthSizePair } from "@solana/spl-account-compression";
 configConstants();
 
 enum TreeSizes {
+  Custom,
   Small, 
   Medium,
-  Large,
-  Custom
+  Large
 }
 enum CanopySizes { 
+  Custom,
   Small,
   Medium, 
   Large,
-  Custom,
   None
 }
 
