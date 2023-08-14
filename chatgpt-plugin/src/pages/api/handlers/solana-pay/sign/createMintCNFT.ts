@@ -20,7 +20,6 @@ configConstants();
 dotenv.config();
 
 async function createMintCNFT(req: NextApiRequest) {
-  // const { metadataUri, treeAddress } = req.query; // the tree address is currently hardcoded below
   const { metadataUri } = req.query;
   const { account: payer } = req.body;
 

@@ -1,8 +1,8 @@
 /**
  * Deprecated until Compressed NFT creation is supported
  */
-import { NextApiRequest } from "next";
 import { createWriteNFTMetadataTx } from "@/lib/on-chain-metadata";
+import { NextApiRequest } from "next";
 import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 import configConstants, { CONNECTION } from "../../../constants";
 configConstants();

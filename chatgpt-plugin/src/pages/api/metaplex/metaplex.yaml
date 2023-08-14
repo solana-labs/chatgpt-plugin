@@ -69,6 +69,20 @@ paths:
           description: Successful Response
   /api/handlers/solana-pay/qr/createTransferAsset:
     post:
+      summary: Helps transfer a compressed NFT from one account to another.
+      description:
+        Creates a transaction for transfering the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
+      operationId: create_mint_cnft
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/createTransferAssetRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /api/handlers/solana-pay/qr/createBurnAsset:
+    post:
       summary: Helps mint a Compressed NFT given its Metadata URI.
       description:
         Creates a transaction for minting the compressed NFT with the given metadata uri. A QR code is returned which the user can scan using their wallet and approve the transaction. 
@@ -77,7 +91,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/createTransferAssetRequest"
+              $ref: "#/components/schemas/createBurnAssetRequest"
       responses:
         "200":
           description: Successful Response
