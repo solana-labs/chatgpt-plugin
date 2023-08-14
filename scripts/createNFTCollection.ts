@@ -3,43 +3,45 @@ import {
   toMetaplexFile,
   UploadMetadataInput,
 } from "@metaplex-foundation/js";
-import { Keypair, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createAccount, createAssociatedTokenAccount, createMint, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
+import {
+  createAssociatedTokenAccount,
+  createMint,
+  mintTo,
+} from "@solana/spl-token";
+import {
+  Keypair,
+  sendAndConfirmTransaction,
+  Transaction,
+} from "@solana/web3.js";
 import { savePublicKeyToFile } from "./helper";
 
-import {
-  PublicKey,
-} from "@metaplex-foundation/js";
+import { PublicKey } from "@metaplex-foundation/js";
 
 import {
-  CreateMetadataAccountArgsV3,
-  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV3Instruction,
+  CreateMetadataAccountArgsV3,
   createSetCollectionSizeInstruction,
+  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
 } from "@metaplex-foundation/mpl-token-metadata";
 import * as fs from "fs";
-// import configConstants, { CONNECTION } from "../chatgpt-plugin/src/pages/api/constants";
-// // import configConstants, { HELIUS_URL } from "../../constants";
-// configConstants();
 
 import dotenv from "dotenv";
 dotenv.config();
 
-const ASSETS_DIR = "../chatgpt-plugin/public/assets/" 
-export async function createNFTCollection(
-  payer: Keypair,
-  metaplex: Metaplex,
-) {
-
+const ASSETS_DIR = "../chatgpt-plugin/public/assets/";
+export async function createNFTCollection(payer: Keypair, metaplex: Metaplex) {
   console.log(metaplex.connection);
   // Create collection metadata
   const buffer = fs.readFileSync(`${ASSETS_DIR}chatgpt-collection-logo.png`);
   const file = toMetaplexFile(buffer, `chatgpt-collection-logo.png`);
-  console.log("before Uploading file to Metaplex")
+  console.log("before Uploading file to Metaplex");
   const imageUri = await metaplex.storage().upload(file);
-  console.log("after Uploading file to Metaplex")
-  const data = fs.readFileSync(`${ASSETS_DIR}chatgpt-collection-metadata.json`, "utf-8");
+  console.log("after Uploading file to Metaplex");
+  const data = fs.readFileSync(
+    `${ASSETS_DIR}chatgpt-collection-metadata.json`,
+    "utf-8"
+  );
   const collectionInfo = JSON.parse(data);
 
   const collectionMetadata: UploadMetadataInput = {
@@ -48,9 +50,9 @@ export async function createNFTCollection(
     image: imageUri,
     description: collectionInfo.description,
   };
-  console.log("before Uploading metadata to Metaplex")
+  console.log("before Uploading metadata to Metaplex");
   const { uri } = await metaplex.nfts().uploadMetadata(collectionMetadata);
-  console.log("after Uploading metadata to Metaplex")
+  console.log("after Uploading metadata to Metaplex");
   // Create collection
   const collectionMetadataV3: CreateMetadataAccountArgsV3 = {
     data: {
@@ -71,37 +73,50 @@ export async function createNFTCollection(
     isMutable: false,
     collectionDetails: null,
   };
-  console.log("before creating mint")
+  console.log("before creating mint");
   const collectionMint = await createMint(
     metaplex.connection,
     payer,
     payer.publicKey, // mintAuthority
     payer.publicKey, // freezeAuthority
     0 // collection -> decimal == 0
-  )
-  console.log("before creating account")
+  );
+  console.log("before creating account");
   // const tokenAccount = await createAccount(
   //   metaplex.connection,
   //   payer,
   //   collectionMint,
   //   payer.publicKey,
   // );
-  console.log(collectionMint.toString())
+  console.log(collectionMint.toString());
   const tokenAccount = await createAssociatedTokenAccount(
-    metaplex.connection, 
+    metaplex.connection,
     payer,
-    collectionMint, 
+    collectionMint,
     payer.publicKey,
     { commitment: "confirmed" }
   );
-  
-  console.log("before minting")
-  await mintTo(metaplex.connection, payer, collectionMint, tokenAccount, payer, 1, [], { commitment: "confirmed" });
-  console.log("after minting")
+
+  console.log("before minting");
+  await mintTo(
+    metaplex.connection,
+    payer,
+    collectionMint,
+    tokenAccount,
+    payer,
+    1,
+    [],
+    { commitment: "confirmed" }
+  );
+  console.log("after minting");
   const [collectionMetadataAccount, _bump] = PublicKey.findProgramAddressSync(
-    [Buffer.from("metadata", "utf8"), TOKEN_METADATA_PROGRAM_ID.toBuffer(), collectionMint.toBuffer()],
-    TOKEN_METADATA_PROGRAM_ID,
-  )
+    [
+      Buffer.from("metadata", "utf8"),
+      TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+      collectionMint.toBuffer(),
+    ],
+    TOKEN_METADATA_PROGRAM_ID
+  );
 
   const createMetadataIx = createCreateMetadataAccountV3Instruction(
     {
@@ -114,13 +129,19 @@ export async function createNFTCollection(
     {
       createMetadataAccountArgsV3: collectionMetadataV3,
     }
-  )
+  );
 
   // create account for showing supply of collection metadata, the proof of the Non-Fungible of the token
-  const [collectionMasterEditionAccount, _bump2] = PublicKey.findProgramAddressSync(
-    [Buffer.from("metadata", "utf8"), TOKEN_METADATA_PROGRAM_ID.toBuffer(), collectionMint.toBuffer(), Buffer.from("edition", "utf8")],
-    TOKEN_METADATA_PROGRAM_ID,
-  )
+  const [collectionMasterEditionAccount, _bump2] =
+    PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("metadata", "utf8"),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        collectionMint.toBuffer(),
+        Buffer.from("edition", "utf8"),
+      ],
+      TOKEN_METADATA_PROGRAM_ID
+    );
 
   const createMasterEditionIx = createCreateMasterEditionV3Instruction(
     {
@@ -134,9 +155,9 @@ export async function createNFTCollection(
     {
       createMasterEditionArgs: {
         maxSupply: 0,
-      }
+      },
     }
-  )
+  );
 
   // create collection size
   const collectionSizeIx = createSetCollectionSizeInstruction(
@@ -146,9 +167,9 @@ export async function createNFTCollection(
       collectionMint: collectionMint,
     },
     {
-      setCollectionSizeArgs: { size: 1000000 }
+      setCollectionSizeArgs: { size: 1000000 },
     }
-  )
+  );
 
   try {
     const tx = new Transaction();
@@ -159,24 +180,41 @@ export async function createNFTCollection(
     tx.feePayer = payer.publicKey;
     // tx.sign(payer); ??
 
-    await sendAndConfirmTransaction(
-      metaplex.connection,
-      tx,
-      [payer],
-      {
-        commitment: "confirmed",
-        skipPreflight: true //?
-      }
-    )
+    await sendAndConfirmTransaction(metaplex.connection, tx, [payer], {
+      commitment: "confirmed",
+      skipPreflight: true, //?
+    });
   } catch (e) {
     console.error("\nFailed to create collection:", e);
     throw e;
   }
-  savePublicKeyToFile("collectionMint", collectionMint, `${ASSETS_DIR}/chatgpt-collection-keys.json`);
-  savePublicKeyToFile("collectionMetadataAccount", collectionMetadataAccount, `${ASSETS_DIR}chatgpt-collection-keys.json`);
-  savePublicKeyToFile("collectionMasterEditionAccount", collectionMasterEditionAccount, `${ASSETS_DIR}chatgpt-collection-keys.json`);
-  console.log("Collection Mint Address: ", collectionMint.toBase58())
-  console.log("Collection Metadata Address: ", collectionMetadataAccount.toBase58())
-  console.log("Collection Master Edition Address: ", collectionMasterEditionAccount.toBase58())
-  return { collectionMint, collectionMetadataAccount, collectionMasterEditionAccount }
+  savePublicKeyToFile(
+    "collectionMint",
+    collectionMint,
+    `${ASSETS_DIR}/chatgpt-collection-keys.json`
+  );
+  savePublicKeyToFile(
+    "collectionMetadataAccount",
+    collectionMetadataAccount,
+    `${ASSETS_DIR}chatgpt-collection-keys.json`
+  );
+  savePublicKeyToFile(
+    "collectionMasterEditionAccount",
+    collectionMasterEditionAccount,
+    `${ASSETS_DIR}chatgpt-collection-keys.json`
+  );
+  console.log("Collection Mint Address: ", collectionMint.toBase58());
+  console.log(
+    "Collection Metadata Address: ",
+    collectionMetadataAccount.toBase58()
+  );
+  console.log(
+    "Collection Master Edition Address: ",
+    collectionMasterEditionAccount.toBase58()
+  );
+  return {
+    collectionMint,
+    collectionMetadataAccount,
+    collectionMasterEditionAccount,
+  };
 }
