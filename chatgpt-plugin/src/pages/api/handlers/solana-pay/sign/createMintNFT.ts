@@ -6,7 +6,7 @@ import configConstants, { CONNECTION } from "../../../constants";
 configConstants();
 
 async function createMintNFT(req: NextApiRequest) {
-  const { name, metadataUri, sellerFee } = req.query;
+  const { name, metadataUri, sellerFee = 0 } = req.query;
   const { account: sender } = req.body;
   const metaplex = Metaplex.make(CONNECTION);
   const mintTransactionBuilder = await metaplex
