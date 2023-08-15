@@ -90,5 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const requiredSpace = getConcurrentMerkleTreeAccountSize(maxDepth, maxBufferSize, canopyDepth);
 
   const rent = await CONNECTION.getMinimumBalanceForRentExemption(requiredSpace);
-  res.status(200).send({ sol: rent / LAMPORTS_PER_SOL, proofSize: maxDepth - canopyDepth });
+  res
+    .status(200)
+    .send({ rent: rent / LAMPORTS_PER_SOL, "number of compressed NFTs": 2 ** maxDepth });
 }
