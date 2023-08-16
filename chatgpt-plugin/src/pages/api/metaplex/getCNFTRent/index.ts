@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { CONNECTION } from "../../constants";
 configConstants();
 
+const RENT_PER_NFT = 5;
 function isValidDepthSizePair(maxDepth: number, maxBufferSize: number): boolean {
   const pair: DepthSizePair = {
     maxDepth,
@@ -78,6 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const rent = await CONNECTION.getMinimumBalanceForRentExemption(requiredSpace);
   res.status(200).send({
     rent: rent / LAMPORTS_PER_SOL,
-    "maximum tree capacity (in number of compressed NFTs)": 2 ** maxDepth,
+    maximumTreeCapacity: 2 ** maxDepth,
+    additionalRentPerNFT: RENT_PER_NFT / LAMPORTS_PER_SOL,
   });
 }
