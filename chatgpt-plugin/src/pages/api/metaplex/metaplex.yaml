@@ -4,7 +4,7 @@ info:
   description: An API for interacting with the Solana NFT collections using Metaplex
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
+  - url: https://chatgpt.solanalabs.com
 paths:
   /api/handlers/solana-pay/qr/createMintCNFT:
     post:
