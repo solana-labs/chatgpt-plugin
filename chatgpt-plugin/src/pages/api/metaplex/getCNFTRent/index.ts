@@ -8,20 +8,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { CONNECTION } from "../../constants";
 configConstants();
 
-enum TreeSizes {
-  Custom,
-  Small,
-  Medium,
-  Large,
-}
-enum CanopySizes {
-  Custom,
-  Small,
-  Medium,
-  Large,
-  None,
-}
-
 function isValidDepthSizePair(maxDepth: number, maxBufferSize: number): boolean {
   const pair: DepthSizePair = {
     maxDepth,
@@ -90,7 +76,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const requiredSpace = getConcurrentMerkleTreeAccountSize(maxDepth, maxBufferSize, canopyDepth);
 
   const rent = await CONNECTION.getMinimumBalanceForRentExemption(requiredSpace);
-  res
-    .status(200)
-    .send({ rent: rent / LAMPORTS_PER_SOL, "number of compressed NFTs": 2 ** maxDepth });
+  res.status(200).send({
+    rent: rent / LAMPORTS_PER_SOL,
+    "maximum tree capacity (in number of compressed NFTs)": 2 ** maxDepth,
+  });
 }

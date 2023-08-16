@@ -26,7 +26,6 @@ async function createMintCNFT(req: NextApiRequest) {
   const metaplex = Metaplex.make(CONNECTION);
   // create compressed nft
   const nftMetadata = await metaplex.storage().downloadJson<JsonMetadata>(metadataUri as string);
-  console.log("nftMetadata", nftMetadata);
   const compressedNftMetadata: MetadataArgs = {
     name: nftMetadata.name ?? "",
     symbol: nftMetadata.symbol ?? "",
