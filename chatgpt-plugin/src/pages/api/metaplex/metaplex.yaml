@@ -4,7 +4,7 @@ info:
   description: An API for interacting with the Solana NFT collections using Metaplex
   version: 1.0.0
 servers:
-  - url: http://localhost:300
+  - url: http://localhost:3000
 paths:
   /api/handlers/solana-pay/qr/createMintCNFT:
     post:
@@ -35,17 +35,17 @@ paths:
       responses:
         "200":
           description: Successful Response
-  /api/metaplex/getPublicTreeAddresses:
+  /api/metaplex/getPublicTree:
     post:
-      summary: getPublicTreeAddresses
+      summary: getPublicTree
       description: >-
         Shows the public tree addresses with available space.
-      operationId: get_public_tree_addresses
+      operationId: get_public_tree
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/getPublicTreeAddressesRequest"
+              $ref: "#/components/schemas/getPublicTreeRequest"
       responses:
         "200":
           description: Successful Response
@@ -166,6 +166,6 @@ components:
       properties:
         assetId:
           type: string
-    getPublicTreeAddressesRequest:
+    getPublicTreeRequest:
       type: object
       properties: {}

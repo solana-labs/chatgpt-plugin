@@ -28,10 +28,8 @@ async function createTransferAsset(req: NextApiRequest) {
     isSigner: false,
     isWritable: false,
   }));
-  console.log("Successfully got proof path from RPC.");
 
   const rpcAsset = await getAsset(assetId, CONNECTION.rpcEndpoint);
-  console.log("Successfully got asset from RPC. Current owner: " + rpcAsset.ownership.owner);
   if (rpcAsset.ownership.owner !== sender) {
     throw new Error(
       `NFT is not owned by the expected owner. Expected ${new PublicKey(sender)} but got ${
