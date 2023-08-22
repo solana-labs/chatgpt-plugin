@@ -268,6 +268,57 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
       security:
         - HTTPBearer: []
+  /api/handlers/walletName:
+    post:
+      summary:
+        Resolves wallet names to the actual solana address, or if it is already a Solana address, it
+        looks up all the wallet names associated with that publickey. This works especially well for
+        .sol, .glow, .backpack, or .poor domains.
+      operationId: query_wallet_name
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletName:
+                  type: string
+      responses:
+        "200":
+          description: Successful Response
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
+  /api/handlers/tokenName:
+    post:
+      summary:
+        Searches tokens by name, and returns the mint address, logo, name and symbol for up to 10
+        relevant, verified tokens.
+      operationId: search_token_name
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tokenName:
+                  type: string
+      responses:
+        "200":
+          description: Successful Response
+        "500":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
 components:
   schemas:
     getAccountInfoRequest:
@@ -611,7 +662,7 @@ components:
           type: array
           items:
             type: string
-          nullabel: true
+          nullable: true
         txVersion:
           type: string
           nullable: true
