@@ -1,3 +1,4 @@
+// DEPRECATED - not in use
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
 import { Comparison, buildComparison, cleanSwapPair } from "@/lib/helloMoon";

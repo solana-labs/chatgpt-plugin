@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
 
 import { JupiterPairsBrokenDownWeeklyRequest } from "@hellomoon/api";
-import { PublicKey } from "@solana/web3.js";
 import { cleanSwapPair } from "@/lib/helloMoon";
 configConstants();
 
@@ -15,7 +14,7 @@ const CATEGORY_MAP: { [key: string]: string } = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { category, ammProgramId, swapPair, limit } = req.body;
+  const { category, swapPair, limit } = req.body;
 
   if (category && !VALID_CATEGORY.includes((category as string).toLocaleLowerCase())) {
     res
@@ -30,18 +29,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  if ((category as string).toLocaleLowerCase() === "per amm" && ammProgramId) {
-    try {
-      new PublicKey(ammProgramId);
-    } catch (error) {
-      res.status(500).send("AMM Program ID is not a valid public key.");
-      return;
-    }
-  }
   let mapped = CATEGORY_MAP[category as string] as any;
   let args = new JupiterPairsBrokenDownWeeklyRequest({
     category: mapped,
-    subCategory: !!(ammProgramId as string)?.length ? ammProgramId : undefined,
     swapPair: swapPair ? cleanSwapPair(swapPair) : undefined,
     limit,
   });
