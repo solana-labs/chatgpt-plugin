@@ -3,7 +3,7 @@ import {
   TokenPriceBatchedRequest,
   NftMintPriceByCreatorAvgRequest,
 } from "@hellomoon/api";
-import { PublicKey, Connection } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { readApiGetAssetsByOwner } from "../getAssetsByOwner";
@@ -11,16 +11,16 @@ import configConstants, { CONNECTION, HELLOMOON_CLIENT } from "../../constants";
 configConstants();
 
 async function getTokenTotal(address: string) {
-  let connection = new Connection(`https://rpc.hellomoon.io/${process.env.HELLOMOON_API_KEY}`);
-  let tokenInfos = await HELLOMOON_CLIENT.send(
-    new TokenBalancesByOwnerRequest({
-      ownerAccount: address,
-    }),
-  );
+  let connection = CONNECTION;
+  let tokenInfos = await (
+    await fetch(
+      `https://api.helius.xyz/v0/addresses/${address}/balances?api-key=${process.env.HELIUS_API_KEY}`,
+    )
+  ).json();
 
   let mints: string[] = [];
   let mintAmount: Record<string, number> = {};
-  for (const info of tokenInfos as any) {
+  for (const info of tokenInfos["tokens"] as any) {
     if (info.amount !== "0") {
       mints.push(info.mint);
       mintAmount[info.mint] = Number.parseInt(info.amount);
@@ -72,7 +72,7 @@ async function getTokenTotal(address: string) {
       }
     }
   }
-  return tokenTotal;
+  return Number(tokenTotal * 100).toFixed(1) / 100;
 }
 
 async function getNFTTotal(address: string) {
@@ -100,11 +100,19 @@ async function getNFTTotal(address: string) {
   let prices = await Promise.all(nftPricePromises);
 
   let nftTotal: number = prices.reduce((a, b) => a + b, 0);
-  return nftTotal;
+  return Number(nftTotal * 100).toFixed(1) / 100;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  let totals = await Promise.all([getTokenTotal(req.body.address), getNFTTotal(req.body.address)]);
+  const address = req.body.address;
+  try {
+    new PublicKey(address);
+  } catch (_e) {
+    res.status(400).json({ error: "Invalid address" });
+    return;
+  }
+
+  let totals = await Promise.all([getTokenTotal(address), getNFTTotal(address)]);
   let [tokenTotal, nftTotal] = totals;
   res.status(200).json({ tokenTotal, nftTotal, total: tokenTotal + nftTotal });
 }
