@@ -72,7 +72,7 @@ async function getTokenTotal(address: string) {
       }
     }
   }
-  return Number(tokenTotal * 100).toFixed(1) / 100;
+  return (Number(tokenTotal * 100).toFixed(1) as any as number) / 100;
 }
 
 async function getNFTTotal(address: string) {
@@ -100,7 +100,7 @@ async function getNFTTotal(address: string) {
   let prices = await Promise.all(nftPricePromises);
 
   let nftTotal: number = prices.reduce((a, b) => a + b, 0);
-  return Number(nftTotal * 100).toFixed(1) / 100;
+  return (Number(nftTotal * 100).toFixed(1) as any as number) / 100;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
