@@ -8,7 +8,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { CONNECTION } from "../../constants";
 configConstants();
 
-const RENT_PER_NFT = 5;
 function isValidDepthSizePair(maxDepth: number, maxBufferSize: number): boolean {
   const pair: DepthSizePair = {
     maxDepth,
@@ -44,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     maxBufferSize = 64;
   } else if (treeSize.toLowerCase() == "large") {
     maxDepth = 30;
-    maxBufferSize = 256;
+    maxBufferSize = 512;
   } else {
     res.status(400).send({ message: "Invalid tree size enum" });
     return;
@@ -78,8 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const rent = await CONNECTION.getMinimumBalanceForRentExemption(requiredSpace);
   res.status(200).send({
-    rent: rent / LAMPORTS_PER_SOL,
-    maximumTreeCapacity: 2 ** maxDepth,
-    additionalRentPerNFT: RENT_PER_NFT / LAMPORTS_PER_SOL,
+    rentInSol: rent / LAMPORTS_PER_SOL,
+    maxNumberOfNFTs: 2 ** maxDepth,
   });
 }
