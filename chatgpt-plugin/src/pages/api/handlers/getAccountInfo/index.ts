@@ -3,7 +3,8 @@ import { PublicKey, Connection, Keypair } from "@solana/web3.js";
 import { Program, AnchorProvider, BorshAccountsCoder, BN } from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
-import { CONNECTION } from "../../constants";
+import configConstants, { CONNECTION } from "../../constants";
+configConstants();
 
 /**
  * Replace Anchor data (BNs, PublicKeys) with stringified data
@@ -11,7 +12,9 @@ import { CONNECTION } from "../../constants";
  * @returns
  */
 export function stringifyAnchorObject(obj: any): any {
-  if (!obj) {
+  if (obj === true || obj === false) {
+    return obj;
+  } else if (!obj) {
     return {};
   } else if (obj instanceof BN) {
     return obj.toString();
@@ -37,13 +40,10 @@ export function stringifyAnchorObject(obj: any): any {
  * @param accountAddress
  * @returns
  */
-async function getParsedAccountInfo(
-  connection: Connection,
-  accountAddress: PublicKey,
-): Promise<Object> {
+async function getParsedAccountInfo(connection: Connection, accountAddress: PublicKey) {
   // TODO: copy the explorer code here that manually deserializes a bunch of stuff, like Mango & Pyth
 
-  const accountInfo = await connection.getAccountInfo(accountAddress);
+  const accountInfo = (await connection.getAccountInfo(accountAddress)) as any;
   // If acccount is not a program, check for Anchor IDL
   if (accountInfo?.owner && !accountInfo.executable) {
     try {
@@ -70,13 +70,11 @@ async function getParsedAccountInfo(
         // Decode the anchor data & stringify the data
         const decodedAccountData = stringifyAnchorObject(coder.decode(accountDef.name, rawData));
 
-        // Inspect the anchor data for fun 🤪
-        console.log(decodedAccountData);
-
         let payload = {
           ...accountInfo,
-          extended: JSON.stringify(decodedAccountData),
+          extended: decodedAccountData,
         };
+        delete payload["data"];
         return payload;
       }
     } catch (err) {
@@ -92,7 +90,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const accountAddress = new PublicKey(req.body.address);
+  let accountAddress: PublicKey;
+  try {
+    accountAddress = new PublicKey(req.body.address);
+  } catch (_e) {
+    res.status(400).send({ message: "Provided address is not a valid Solana address" });
+    return;
+  }
   const accountInfo = await getParsedAccountInfo(CONNECTION, accountAddress);
-  res.status(200).send({ message: JSON.stringify(accountInfo) });
+  res.status(200).json(accountInfo);
 }
