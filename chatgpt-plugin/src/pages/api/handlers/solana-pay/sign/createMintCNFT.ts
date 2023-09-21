@@ -1,3 +1,4 @@
+// DEPRECATED - not in use
 import { JsonMetadata, Metaplex } from "@metaplex-foundation/js";
 import {
   PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,

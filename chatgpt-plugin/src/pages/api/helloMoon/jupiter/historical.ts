@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
-import { Comparison, buildComparison } from "@/lib/helloMoon";
-
-import { JupiterHistoricalTradingStatsRequest } from "@hellomoon/api";
 configConstants();
+import { Comparison, buildComparison } from "@/lib/helloMoon";
+import { JupiterHistoricalTradingStatsRequest } from "@hellomoon/api";
+import { makeApiPostRequest } from "@/lib/middleware";
 
 const VALID_GRANULARITY = ["DAILY", "WEEKLY", "MONTHLY"];
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { granularity, limit } = req.body;
 
   if (granularity && !VALID_GRANULARITY.includes((granularity as string).toLocaleUpperCase())) {
@@ -49,3 +49,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).send(data);
 }
+
+export default makeApiPostRequest(handler);

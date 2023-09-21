@@ -1,9 +1,9 @@
 // Deprecated - Not in use
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
+configConstants();
 
 import { DefiProgramNetNewUsersDailyRequest } from "@hellomoon/api";
-configConstants();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { programId, limit, day } = req.body;

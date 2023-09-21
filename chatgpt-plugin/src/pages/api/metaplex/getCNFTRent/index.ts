@@ -1,3 +1,4 @@
+// Deprecated - Not in use
 import {
   ALL_DEPTH_SIZE_PAIRS,
   DepthSizePair,

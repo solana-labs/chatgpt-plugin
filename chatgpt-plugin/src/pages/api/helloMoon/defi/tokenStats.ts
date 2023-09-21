@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
-
-import { DefiTokenLeaderboardV3Request } from "@hellomoon/api";
 configConstants();
 
+import { DefiTokenLeaderboardV3Request } from "@hellomoon/api";
+import { makeApiPostRequest } from "@/lib/middleware";
+
 const GRANULARITY = ["one_day", "one_week", "one_month", "thirty_min", "one_hour", "six_hour"];
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { granularity, mint, limit } = req.body;
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { granularity, limit } = req.body;
 
   if (granularity && !GRANULARITY.includes(granularity.toLowerCase())) {
     res.status(500).send("Invalid granularity: " + granularity);
@@ -15,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   let args = new DefiTokenLeaderboardV3Request({
     granularity: granularity ? ((granularity as string).toLocaleUpperCase() as any) : "ONE_DAY",
-    mint: mint ?? undefined,
+    mint: req.body["mint"].toString(),
     limit: limit ?? 10,
   });
 
@@ -25,3 +26,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).send(data);
 }
+
+export default makeApiPostRequest(handler, { tokens: ["mint"] });

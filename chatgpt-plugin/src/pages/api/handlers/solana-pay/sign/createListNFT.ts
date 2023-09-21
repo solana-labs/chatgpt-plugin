@@ -1,3 +1,4 @@
+// DEPRECATED - not in use
 /**
  * Deprecated because Solana Pay compatible wallets block NFT/token delegation to prevent scams
  * This means we can't list via Solana Pay, but maybe we can get around this by using NFT AMMs

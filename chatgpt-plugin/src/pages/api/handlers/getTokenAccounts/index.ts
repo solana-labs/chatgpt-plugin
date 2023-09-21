@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import configConstants, { CONNECTION } from "../../constants";
+import { makeApiPostRequest } from "@/lib/middleware";
 configConstants();
 
 type TokenInfo = {
@@ -9,14 +9,11 @@ type TokenInfo = {
   amount: string;
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   let result = await CONNECTION.getParsedTokenAccountsByOwner(
-    new PublicKey(req.body.address),
+    req.body["address"],
     { programId: TOKEN_PROGRAM_ID },
-    "confirmed"
+    "confirmed",
   );
   const tokenInfos: TokenInfo[] = [];
   for (const accountInfo of result.value) {
@@ -30,3 +27,5 @@ export default async function handler(
   }
   res.status(200).json(tokenInfos);
 }
+
+export default makeApiPostRequest(handler, { addresses: ["address"] });

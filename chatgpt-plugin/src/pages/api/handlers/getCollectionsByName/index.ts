@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HYPERSPACE_CLIENT } from "../../constants";
 configConstants();
+import { makeApiPostRequest } from "@/lib/middleware";
 
 async function getCollectionsByName(req: NextApiRequest, res: NextApiResponse) {
   const { projectName } = req.body;
@@ -16,7 +17,7 @@ async function getCollectionsByName(req: NextApiRequest, res: NextApiResponse) {
   });
   const paredResponse =
     projects.getProjectStatByName.project_stats
-      ?.map((project) => {
+      ?.map(project => {
         return {
           id: project.project_id,
           verified: project.project?.is_verified ?? false,
@@ -28,7 +29,7 @@ async function getCollectionsByName(req: NextApiRequest, res: NextApiResponse) {
           twitter: project.project?.twitter ?? "",
         };
       })
-      .filter((project) => project.verified) ?? [];
+      .filter(project => project.verified) ?? [];
   const result = {
     projects: paredResponse,
   };
@@ -36,4 +37,4 @@ async function getCollectionsByName(req: NextApiRequest, res: NextApiResponse) {
   res.status(200).send(JSON.stringify(result));
 }
 
-export default getCollectionsByName;
+export default makeApiPostRequest(getCollectionsByName);

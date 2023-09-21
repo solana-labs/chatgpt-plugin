@@ -1,3 +1,4 @@
+// Deprecated - Not in use
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants from "../../constants";
 configConstants();

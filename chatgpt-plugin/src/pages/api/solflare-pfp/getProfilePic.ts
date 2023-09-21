@@ -1,3 +1,4 @@
+// Deprecated - Not in use
 import { NextApiRequest, NextApiResponse } from "next";
 import { getProfilePicture } from "@solflare-wallet/pfp";
 import configConstants, { CONNECTION } from "../constants";

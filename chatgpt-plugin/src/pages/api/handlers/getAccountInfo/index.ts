@@ -4,6 +4,7 @@ import { Program, AnchorProvider, BorshAccountsCoder, BN } from "@coral-xyz/anch
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
 import configConstants, { CONNECTION } from "../../constants";
+import { makeApiPostRequest } from "@/lib/middleware";
 configConstants();
 
 /**
@@ -84,19 +85,9 @@ async function getParsedAccountInfo(connection: Connection, accountAddress: Publ
   return accountInfo || {};
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method != "POST") {
-    res.status(405).send({ message: "Only POST requests allowed" });
-    return;
-  }
-
-  let accountAddress: PublicKey;
-  try {
-    accountAddress = new PublicKey(req.body.address);
-  } catch (_e) {
-    res.status(400).send({ message: "Provided address is not a valid Solana address" });
-    return;
-  }
-  const accountInfo = await getParsedAccountInfo(CONNECTION, accountAddress);
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const accountInfo = await getParsedAccountInfo(CONNECTION, req.body["address"]);
   res.status(200).json(accountInfo);
 }
+
+export default makeApiPostRequest(handler, { addresses: ["address"] });

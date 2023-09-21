@@ -1,5 +1,6 @@
+// DEPRECATED - not in use
 import { NextApiRequest } from "next";
-import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
 import { makeRespondToSolanaPayGet, makeRespondToSolanaPayPost } from ".";
 import configConstants, { CONNECTION } from "../../../constants";

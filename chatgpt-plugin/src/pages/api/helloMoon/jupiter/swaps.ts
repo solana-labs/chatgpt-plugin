@@ -1,9 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
+configConstants();
 
 import { JupiterPairsBrokenDownWeeklyRequest } from "@hellomoon/api";
 import { cleanSwapPair } from "@/lib/helloMoon";
-configConstants();
+import { makeApiPostRequest } from "@/lib/middleware";
 
 const VALID_CATEGORY = ["per amm", "whole market", "jupiter only"];
 // Make params case-insensitive so it's easier for LLMs to get right
@@ -13,7 +14,7 @@ const CATEGORY_MAP: { [key: string]: string } = {
   "jupiter only": "Jupiter only",
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { category, swapPair, limit } = req.body;
 
   if (category && !VALID_CATEGORY.includes((category as string).toLocaleLowerCase())) {
@@ -42,3 +43,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).send(data);
 }
+
+export default makeApiPostRequest(handler);

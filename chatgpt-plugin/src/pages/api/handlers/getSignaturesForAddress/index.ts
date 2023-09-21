@@ -1,16 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PublicKey } from "@solana/web3.js";
 import configConstants, { CONNECTION } from "../../constants";
+import { makeApiPostRequest } from "@/lib/middleware";
 configConstants();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  let accountAddress: PublicKey;
-  try {
-    accountAddress = new PublicKey(req.body.address);
-  } catch (_e) {
-    res.status(400).send({ message: "Provided address is not a valid Solana address" });
-    return;
-  }
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const accountAddress = req.body["address"];
 
   const beforeSig = req.body.beforeSignature ?? "";
   const untilSig = req.body.untilSignature ?? "";
@@ -34,3 +29,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }),
   });
 }
+
+export default makeApiPostRequest(handler, { addresses: ["address"] });

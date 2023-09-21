@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HYPERSPACE_CLIENT } from "../../constants";
+import { makeApiPostRequest } from "@/lib/middleware";
 configConstants();
 
 type NFTListing = {
@@ -70,8 +71,10 @@ async function hyperspaceGetListedCollectionNFTs(
   };
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { projectId, pageSize, priceOrder } = req.body;
   const result = await hyperspaceGetListedCollectionNFTs(projectId, pageSize, priceOrder);
   res.status(200).send(JSON.stringify(result));
 }
+
+export default makeApiPostRequest(handler);

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import configConstants, { HYPERSPACE_CLIENT } from "../../constants";
+import { makeApiPostRequest } from "@/lib/middleware";
 configConstants();
 
 type CollectionStats = {
@@ -19,18 +20,14 @@ async function hyperspaceGetCollectionsByFloorPrice(
   minFloorPrice: number | undefined,
   pageSize: number = 5,
   orderBy: string = "DESC",
-  humanReadableSlugs: boolean = false
+  humanReadableSlugs: boolean = false,
 ) {
   let pageNumber = 1;
   let results: CollectionStats[] = [];
   let hasMore = true;
 
   const PAGE_SCRAPE_LIMIT = 10;
-  while (
-    results.length < pageSize &&
-    pageNumber < PAGE_SCRAPE_LIMIT &&
-    hasMore
-  ) {
+  while (results.length < pageSize && pageNumber < PAGE_SCRAPE_LIMIT && hasMore) {
     let projects = await HYPERSPACE_CLIENT.getProjects({
       condition: {
         floorPriceFilter: {
@@ -50,12 +47,10 @@ async function hyperspaceGetCollectionsByFloorPrice(
 
     let stats: CollectionStats[] =
       projects.getProjectStats.project_stats
-        ?.filter((project) => {
-          return (
-            (project.volume_7day ?? 0 > 0) && (project.floor_price ?? 0 > 0)
-          );
+        ?.filter(project => {
+          return (project.volume_7day ?? 0 > 0) && (project.floor_price ?? 0 > 0);
         })
-        .map((project) => {
+        .map(project => {
           return {
             id: project.project_id,
             desc: project.project?.display_name ?? "",
@@ -66,7 +61,7 @@ async function hyperspaceGetCollectionsByFloorPrice(
         }) ?? [];
 
     if (humanReadableSlugs) {
-      stats = stats?.filter((stat) => {
+      stats = stats?.filter(stat => {
         try {
           bs58.decode(stat.id!);
           return false;
@@ -87,18 +82,16 @@ async function hyperspaceGetCollectionsByFloorPrice(
   };
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { maxFloorPrice, minFloorPrice, orderBy, pageSize, humanReadable } =
-    req.body;
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { maxFloorPrice, minFloorPrice, orderBy, pageSize, humanReadable } = req.body;
   const result = await hyperspaceGetCollectionsByFloorPrice(
     maxFloorPrice,
     minFloorPrice,
     pageSize,
     orderBy,
-    humanReadable
+    humanReadable,
   );
   res.status(200).send(JSON.stringify(result));
 }
+
+export default makeApiPostRequest(handler);

@@ -1,3 +1,4 @@
+// DEPRECATED - not in use
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { createBurnInstruction } from "@metaplex-foundation/mpl-bubblegum";
 import {

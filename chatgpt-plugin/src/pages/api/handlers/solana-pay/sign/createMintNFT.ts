@@ -1,3 +1,4 @@
+// DEPRECATED - not in use
 import { Metaplex } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 import { NextApiRequest } from "next";

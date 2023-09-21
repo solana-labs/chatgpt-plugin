@@ -1,14 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import configConstants, { HELLOMOON_CLIENT } from "../../constants";
-
-import { DefiTokenUsersDailyRequest } from "@hellomoon/api";
 configConstants();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { mint, day, limit } = req.body;
+import { DefiTokenUsersDailyRequest } from "@hellomoon/api";
+import { makeApiPostRequest } from "@/lib/middleware";
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { day, limit } = req.body;
 
   let args = new DefiTokenUsersDailyRequest({
-    mint,
+    mint: req.body["mint"].toString(),
     day: day ? new Date(day).toISOString() : undefined,
     limit: limit ?? 10,
   });
@@ -19,3 +20,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).send(data);
 }
+export default makeApiPostRequest(handler, { tokens: ["mint"] });

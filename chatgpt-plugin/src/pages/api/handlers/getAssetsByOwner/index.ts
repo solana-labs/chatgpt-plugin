@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PublicKey } from "@solana/web3.js";
 import configConstants, { HELIUS_URL } from "../../constants";
 configConstants();
 
 import axios from "axios";
+import { makeApiPostRequest } from "@/lib/middleware";
 
 /**
  * Returns the data from the Metaplex Read API
@@ -32,9 +32,9 @@ export const readApiGetAssetsByOwner = async (
   return data.result;
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log(HELIUS_URL, process.env.HELIUS_API_KEY);
-  const accountAddress = new PublicKey(req.body.address);
-  const assets = await readApiGetAssetsByOwner(accountAddress.toString());
-  res.status(200).send({ message: JSON.stringify(assets) });
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const assets = await readApiGetAssetsByOwner(req.body["address"].toString());
+  res.status(200).send(assets);
 }
+
+export default makeApiPostRequest(handler, { addresses: ["address"] });

@@ -6,23 +6,21 @@ import configConstants, { CONNECTION } from "../../../constants";
 configConstants();
 
 async function createTransferToken(req: NextApiRequest) {
-  const { mint, destination, amount } = req.query;
-  const { account: sender } = req.body;
+  const { amount } = req.query;
+  const { account } = req.body;
 
-  const sourceToken = getAssociatedTokenAddressSync(
-    new PublicKey(mint as string),
-    new PublicKey(sender),
-  );
-  const destinationToken = getAssociatedTokenAddressSync(
-    new PublicKey(mint as string),
-    new PublicKey(destination as string),
-  );
+  const sender = new PublicKey(account);
+  const destination = req.query["destination"] as any as PublicKey;
+  const mint = req.query["mint"] as any as PublicKey;
+
+  const sourceToken = getAssociatedTokenAddressSync(mint, sender);
+  const destinationToken = getAssociatedTokenAddressSync(mint, destination);
 
   const tx = new Transaction();
   tx.add(
     createTransferInstruction(sourceToken, destinationToken, sender, Number(amount as string)),
   );
-  tx.feePayer = new PublicKey(sender);
+  tx.feePayer = sender;
   tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
 
   return {
@@ -30,4 +28,6 @@ async function createTransferToken(req: NextApiRequest) {
   };
 }
 
-export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createTransferToken));
+export default makeRespondToSolanaPayGet(
+  makeRespondToSolanaPayPost(createTransferToken, { addresses: ["destination"], tokens: ["mint"] }),
+);
