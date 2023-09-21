@@ -26,6 +26,7 @@ import { u8 } from "@solana/buffer-layout";
 
 // Setup Solflare
 import { Client } from "@solflare-wallet/utl-sdk";
+import { makeApiPostRequest } from "@/lib/middleware";
 const utl = new Client();
 
 type IxArgs = Record<string, string>;
@@ -382,7 +383,7 @@ function parseLogs(logs: string[]): { programId: string; depth: number }[] {
 }
 
 // TODO(ngundotra): add support for System program + SPL programs
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const signature = req.body.signature;
   const devMode = req.body.devMode ?? false;
   const transaction = await CONNECTION.getTransaction(signature, {
@@ -499,3 +500,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).send(JSON.stringify(response));
 }
+
+export default makeApiPostRequest(handler);

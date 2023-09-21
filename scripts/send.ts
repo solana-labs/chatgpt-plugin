@@ -1,3 +1,4 @@
+// Deprecated - Not in use
 import { Connection, Transaction, Keypair, Signer } from "@solana/web3.js";
 import { readFileSync } from "fs";
 

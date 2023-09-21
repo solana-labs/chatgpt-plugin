@@ -1,8 +1,8 @@
 import express from "express";
 
+import { RestClient } from "@hellomoon/api";
 import { Connection } from "@solana/web3.js";
 import { HyperspaceClient } from "hyperspace-client-js";
-import { RestClient } from "@hellomoon/api";
 
 export const APP = express();
 export const PORT = process.env.PORT || 3333;
@@ -36,12 +36,7 @@ export let CONNECTION: Connection;
 export default function index() {
   HELIUS_URL = `https://rpc.helius.xyz/?api-key=${process.env.HELIUS_API_KEY}`;
   CONNECTION = new Connection(HELIUS_URL);
-
-  if (process.env.DEV === "true") {
-    SELF_URL = `http://localhost:${PORT}`;
-  } else {
-    SELF_URL = "https://chatgpt.solanalabs.com";
-  }
+  SELF_URL = process.env.SELF_URL as string;
 
   HYPERSPACE_CLIENT = new HyperspaceClient(process.env.HYPERSPACE_API_KEY as string);
 

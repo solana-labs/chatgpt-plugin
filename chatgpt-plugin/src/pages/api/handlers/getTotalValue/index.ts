@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import { readApiGetAssetsByOwner } from "../getAssetsByOwner";
 import configConstants, { CONNECTION, HELLOMOON_CLIENT } from "../../constants";
+import { makeApiPostRequest } from "@/lib/middleware";
 configConstants();
 
 async function getTokenTotal(address: string) {
@@ -99,16 +100,12 @@ async function getNFTTotal(address: string) {
   return (Number(nftTotal * 100).toFixed(1) as any as number) / 100;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const address = req.body.address;
-  try {
-    new PublicKey(address);
-  } catch (_e) {
-    res.status(400).json({ error: "Invalid address" });
-    return;
-  }
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const address = req.body["address"];
 
   let totals = await Promise.all([getTokenTotal(address), getNFTTotal(address)]);
   let [tokenTotal, nftTotal] = totals;
   res.status(200).json({ tokenTotal, nftTotal, total: tokenTotal + nftTotal });
 }
+
+export default makeApiPostRequest(handler, { addresses: ["address"] });

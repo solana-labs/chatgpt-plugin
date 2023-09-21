@@ -2,11 +2,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { encode } from "querystring";
 import configConstants, { SELF_URL } from "../../constants";
 configConstants();
+import { makeApiPostRequest } from "@/lib/middleware";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const {
     query: { txSlug },
   } = req;
@@ -17,3 +15,5 @@ export default async function handler(
     disclaimer: `This product uses artificial intelligence ("AI"), which may produce inaccurate information. You are responsible for transactions you authorize, so please confirm accuracy of instructions prior to authorizing any transaction.`,
   });
 }
+
+export default makeApiPostRequest(handler);

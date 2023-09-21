@@ -6,18 +6,21 @@ import configConstants, { CONNECTION } from "../../../constants";
 configConstants();
 
 async function createTransferSol(req: NextApiRequest) {
-  const { destination, amount } = req.query;
-  const { account: sender } = req.body;
+  const { amount } = req.query;
+  const { account } = req.body;
+
+  const sender = new PublicKey(account);
+  const destination = req.query["destination"] as any as PublicKey;
 
   const tx = new Transaction();
   tx.add(
     SystemProgram.transfer({
-      fromPubkey: new PublicKey(sender),
-      toPubkey: new PublicKey(destination as string),
+      fromPubkey: sender,
+      toPubkey: destination,
       lamports: Math.floor(parseFloat(amount as string) * LAMPORTS_PER_SOL),
     }),
   );
-  tx.feePayer = new PublicKey(sender);
+  tx.feePayer = sender;
   tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
 
   return {
@@ -25,4 +28,6 @@ async function createTransferSol(req: NextApiRequest) {
   };
 }
 
-export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createTransferSol));
+export default makeRespondToSolanaPayGet(
+  makeRespondToSolanaPayPost(createTransferSol, { addresses: ["destination"] }),
+);

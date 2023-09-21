@@ -1,15 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-
-// Setup Solflare
 import { Client } from "@solflare-wallet/utl-sdk";
+import { makeApiPostRequest } from "@/lib/middleware";
 const utl = new Client();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method != "POST") {
-    res.status(405).send({ message: "Only POST requests allowed" });
-    return;
-  }
-
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { tokenName } = req.body;
 
   let results = await (
@@ -32,3 +26,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).json(results.slice(0, 10));
 }
+export default makeApiPostRequest(handler);

@@ -1,17 +1,12 @@
+// DEPRECATED - not in use
 import { NextApiRequest } from "next";
 
 import { base64 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
-
 import configConstants, { HYPERSPACE_CLIENT } from "../../../constants";
 configConstants();
-
 import { makeRespondToSolanaPayPost, makeRespondToSolanaPayGet } from ".";
 
-async function hyperspaceCreateBuyTx(
-  buyer: string,
-  token: string,
-  price: number
-) {
+async function hyperspaceCreateBuyTx(buyer: string, token: string, price: number) {
   let transactionData = await HYPERSPACE_CLIENT.createBuyTx({
     buyerAddress: buyer,
     tokenAddress: token,
@@ -20,9 +15,7 @@ async function hyperspaceCreateBuyTx(
     buyerBroker: "",
     buyerBrokerBasisPoints: 0,
   });
-  const txBytes = base64.encode(
-    Buffer.from(transactionData.createBuyTx.stdBuffer!)
-  );
+  const txBytes = base64.encode(Buffer.from(transactionData.createBuyTx.stdBuffer!));
 
   return {
     transaction: txBytes,
@@ -35,10 +28,8 @@ export async function createBuyNFT(req: NextApiRequest) {
   return await hyperspaceCreateBuyTx(
     buyer as string,
     token as string,
-    Number.parseFloat(price as string)
+    Number.parseFloat(price as string),
   );
 }
 
-export default makeRespondToSolanaPayGet(
-  makeRespondToSolanaPayPost(createBuyNFT)
-);
+export default makeRespondToSolanaPayGet(makeRespondToSolanaPayPost(createBuyNFT));

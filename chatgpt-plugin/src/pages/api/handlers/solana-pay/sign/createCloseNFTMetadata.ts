@@ -1,6 +1,4 @@
-/**
- * Deprecated until Compressed NFT creation is supported
- */
+// DEPRECATED - not in use
 import { NextApiRequest } from "next";
 
 import { createCloseNFTMetadataTx } from "@/lib/on-chain-metadata";

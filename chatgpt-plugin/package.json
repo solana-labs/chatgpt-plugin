@@ -18,6 +18,7 @@
     "@solana/pay": "^0.2.5",
     "@solana/spl-token": "^0.3.8",
     "@solana/web3.js": "^1.77.3",
+    "@solflare-wallet/pfp": "^0.1.0",
     "@solflare-wallet/utl-sdk": "^1.4.0",
     "@tiplink/api": "^0.1.2",
     "@types/node": "20.1.7",

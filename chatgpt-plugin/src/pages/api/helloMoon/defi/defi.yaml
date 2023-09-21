@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: HelloMoon Defi Summary API
+  description: An API for querying information about defi protocols on Solana
+  version: 1.0.0
+servers:
+  - url: https://chatgpt.solanalabs.com/api/helloMoon
+paths:
+  /defi/programNewUsers:
+    post:
+      summary: Shows new users of a program over time.
+      description:
+        Shows new users of a program over time. A new user is defined as the first time a publicKey
+        has been a fee payer for this program address.
+      operationId: query_program_new_users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/programNewUsersRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /defi/programOverlap:
+    post:
+      summary: Shows overlap between users of two different programs
+      description:
+      Program overlap shows the overlap between the users of two protocols. The data will show what percentage of 'aProgramIds' users also use 'bProgramId'
+      operationId: query_program_user_overlap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/programOverlapRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /defi/tokenUsers:
+    post:
+      summary:
+      description:
+      operationId: query_token_users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/tokenUsersRequest"
+      responses:
+        "200":
+          description: Successful Response
+  /defi/tokenStats:
+    post:
+      summary:
+      description:
+      operationId: query_token_stats
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/tokenStatsRequest"
+      responses:
+        "200":
+          description: Successful Response
+components:
+  schemas:
+    stringComparisonOperator:
+      type: string
+      enum:
+        - "="
+        - "!="
+        - ">"
+        - "<"
+        - ">="
+      nullable: true
+    nullableNumber:
+      type: number
+      nullable: true
+    programNewUsersRequest:
+      type: object
+      required:
+        - programId
+      properties:
+        programId:
+          type: string
+        day:
+          type: string
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+    programOverlapRequest:
+      type: object
+      properties:
+        aProgramId:
+          type: string
+        bProgramId:
+          type: string
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+    tokenUsersRequest:
+      type: object
+      properties:
+        day:
+          type: string
+          nullable: true
+        mint:
+          type: string
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
+    tokenStatsRequest:
+      type: object
+      properties:
+        granularity:
+          type: string
+          enum:
+            - "one_week"
+            - "one_month"
+            - "one_day"
+            - "six_hour"
+            - "one_hour"
+            - "thirty_min"
+          nullable: true
+        mint:
+          type: string
+          nullable: true
+        limit:
+          $ref: "#/components/schemas/nullableNumber"
