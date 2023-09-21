@@ -103,7 +103,10 @@ async function getNFTTotal(address: string) {
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const address = req.body["address"];
 
-  let totals = await Promise.all([getTokenTotal(address), getNFTTotal(address)]);
+  let totals = await Promise.all([
+    getTokenTotal(address.toString()),
+    getNFTTotal(address.toString()),
+  ]);
   let [tokenTotal, nftTotal] = totals;
   res.status(200).json({ tokenTotal, nftTotal, total: tokenTotal + nftTotal });
 }
