@@ -21,7 +21,6 @@ export function makeApiPostRequest(handler: NextApiHandler, options?: Options): 
       if (options && options.addresses) {
         for (const addr of options.addresses) {
           const publicKey = await resolveAddress(target[addr]);
-          console.log(addr, publicKey);
           target[addr] = publicKey;
         }
       }
